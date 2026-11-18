@@ -1,0 +1,161 @@
+{
+  "description": "Required core turn and contribution behavior. Except where a step says otherwise, messages are verified, authorized, structurally valid, and processed within a retained live context. These abstract conformance traces do not establish implementation conformance or restart durability. S denotes an opening say and therefore its turn identity; distinct letters denote distinct message identities. Unless a step states otherwise, conversation traffic uses an explicitly selected applicable continuity profile with valid authorized guards and retained required context at admission; stale traffic from an ended scope is rejected at that boundary before ordinary correlation or disposition handling.",
+  "cases": [
+    {
+      "name": "a fresh request opens one turn with one response contract",
+      "steps": [
+        { "event": "no turn is open; fresh say S has no in_response_to and names operation summarize with valid initial input", "expect": ["ack S", "taken for S as new-turn with turn S", "summarize establishes the turn response contract"] },
+        { "event": "the actor completes the turn successfully", "expect": ["one result naming S in in_response_to", "result data satisfies the selected summarize output schema", "S is closed"] }
+      ]
+    },
+    {
+      "name": "multiple targeted contributions preserve the opening turn",
+      "steps": [
+        { "event": "S is open under summarize; its guidance permits supplemental evidence and narrowing the requested scope" },
+        { "event": "say C names S in in_response_to, omits operation, and supplies another source", "expect": ["ack C", "taken for C as added-to-turn with turn S", "C inherits the summarize contract"] },
+        { "event": "say D names S in in_response_to, repeats operation summarize, and requests a narrower scope", "expect": ["ack D", "taken for D as added-to-turn with turn S", "no independent summarize invocation starts"] },
+        { "event": "the actor completes S", "expect": ["one result naming S", "the response accounts for admitted C and D under the opening output contract", "no separate terminal result is required for C or D"] }
+      ]
+    },
+    {
+      "name": "an independent request does not silently join an open turn",
+      "steps": [
+        { "event": "S is open; the actor can accept and classify messages" },
+        { "event": "fresh say N has no in_response_to and names another known operation", "expect": ["ack N", "taken for N as not-acted-on without turn", "no execution or implicit queuing of N", "no busy solely because S is open", "N does not change S's response contract"] },
+        { "event": "S closes; an identical copy of N arrives", "expect": ["normal duplicate acknowledgement", "N is not reclassified as a new turn", "a deliberate later invocation needs a new message identity"] }
+      ]
+    },
+    {
+      "name": "completion before contribution does not create new work",
+      "steps": [
+        { "event": "the requester sends contribution C naming S, but the transport delays C" },
+        { "event": "the actor emits S's terminal result and later opens unrelated turn N" },
+        { "event": "C arrives for the known closed turn S", "expect": ["refusal closed for C", "no reopening of S", "no new turn for C", "no addition of C to N"] }
+      ]
+    },
+    {
+      "name": "an answer cannot reopen a closed question",
+      "steps": [
+        { "event": "question Q belongs to S and has closed as answered, expired, or withdrawn" },
+        { "event": "new say A names Q in in_response_to", "expect": ["refusal closed for A", "no reopening of Q", "no automatic contribution to another question or turn"] }
+      ]
+    },
+    {
+      "name": "an unknown target cannot establish its own turn",
+      "steps": [
+        {
+          "event": "C1 ended; properly established C2 has an active guard but no message S; the following contribution is newly signed for C2 rather than an original C1 frame"
+        },
+        {
+          "event": "otherwise valid say C names S in in_response_to",
+          "expect": [
+            "refusal unknown for C",
+            "no reconstruction of S or its operation from C",
+            "no new turn for C",
+            "no assertion that earlier work did not occur",
+            "an original frame signed for C1 would fail the C2 guard before unknown-reference handling"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "only an opening say or a question is a contribution target",
+      "steps": [
+        { "event": "S is open; C is an admitted contribution; P is a known progress message for S" },
+        { "event": "new say D names C rather than the opening say S", "expect": ["refusal malformed for D", "no inferred retargeting to S"] },
+        { "event": "new say E names P", "expect": ["refusal malformed for E", "no inferred retargeting to S"] }
+      ]
+    },
+    {
+      "name": "a contribution cannot select another operation",
+      "steps": [
+        { "event": "S is open under summarize; book is another known operation" },
+        { "event": "say C names S in in_response_to and operation book", "expect": ["refusal malformed for C", "no book invocation", "summarize remains S's response contract"] },
+        { "event": "in a different conversation an unnamed turn U is open; say D targets U and introduces the known operation summarize", "expect": ["refusal malformed for D", "no implicit conversion of U into a named operation"] }
+      ]
+    },
+    {
+      "name": "an unknown supplied operation remains unsupported",
+      "steps": [
+        { "event": "S is open under summarize; operation absent_operation is not offered" },
+        { "event": "say C targets S and supplies operation absent_operation", "expect": ["refusal unsupported for C", "no operation substitution", "no contribution is admitted"] }
+      ]
+    },
+    {
+      "name": "a turn contribution does not implicitly answer an open question",
+      "steps": [
+        { "event": "S is open; question Q asks which source version to use; supplemental evidence is permitted" },
+        { "event": "say C targets S and supplies additional evidence", "expect": ["ack C", "taken for C as added-to-turn with turn S", "Q remains open"] },
+        { "event": "say A targets Q and supplies a valid answer", "expect": ["ack A", "taken for A as answer with turn S and question Q", "Q closes as answered", "S retains its original identity and response contract"] }
+      ]
+    },
+    {
+      "name": "a bounded operation may decline amendments",
+      "steps": [
+        { "event": "S is a bounded request whose guidance permits no unsolicited amendments; its implementation may use a model or deterministic code" },
+        { "event": "a valid say C targets S and proposes an amendment", "expect": ["ack C", "taken for C as not-acted-on without turn", "no change to S's effective request", "no independent invocation for C"] }
+      ]
+    },
+    {
+      "name": "full replacement input requires permission and validation",
+      "steps": [
+        { "event": "S's initial input requires document and region; its guidance permits targeted full-input replacement validated against that input schema" },
+        { "event": "say C targets S with replacement data containing only region", "expect": ["refusal malformed for C", "no implicit merge with S's original data", "S's effective input is unchanged"] },
+        { "event": "new say D targets S with valid complete replacement data", "expect": ["ack D", "taken for D as added-to-turn with turn S", "the permitted replacement changes the effective input", "the opening output contract remains unchanged"] }
+      ]
+    },
+    {
+      "name": "contribution data follows its declared meaning",
+      "steps": [
+        { "event": "S's opening input requires document; its guidance separately defines contribution data as an object with exactly one string field constraint" },
+        { "event": "say C targets S with data containing a valid constraint and no document", "expect": ["ack C", "taken for C as added-to-turn with turn S", "C is validated as a contribution rather than as another opening input", "the constraint is added without replacing S's document"] },
+        { "event": "new say D targets S with numeric constraint", "expect": ["refusal malformed for D", "no admission of invalid contribution data"] },
+        { "event": "another interaction has no declared interpretation for contribution data", "expect": ["receipt of data alone supplies no implicit merge, replacement, or binding amendment of its opening input"] }
+      ]
+    },
+    {
+      "name": "admitted correction precedes an obsolete completion",
+      "steps": [
+        { "event": "S is being answered using figures V1" },
+        { "event": "the actor admits C targeting S with corrected figures V2", "expect": ["ack C", "taken for C as added-to-turn with turn S"] },
+        { "event": "an internal computation based only on V1 finishes", "expect": ["no unqualified terminal success that silently ignores C", "the actor accounts for C in the eventual response or explains why the amendment could not be applied", "no prescribed model restart or internal scheduling mechanism"] },
+        { "event": "the actor emits the terminal result for S", "expect": ["one terminal result for S", "later obsolete internal completions cannot produce another terminal outcome"] }
+      ]
+    },
+    {
+      "name": "a later description cannot replace an open turn's output contract",
+      "steps": [
+        { "event": "S opens under summarize, whose selected output requires total as a number" },
+        { "event": "a later description advertises a different output for that operation name" },
+        { "event": "a permitted contribution C is admitted to S", "expect": ["the response contract selected for S remains unchanged"] },
+        { "event": "the actor stops offering summarize for new requests; D targets S and repeats operation summarize", "expect": ["ack D", "taken for D as added-to-turn with turn S under its retained contribution rules", "the retained operation is recognized before considering current operation availability"] },
+        { "event": "S completes successfully", "expect": ["result data satisfies S's selected output contract", "the later advertisement does not retroactively redefine S's promised response"] }
+      ]
+    },
+    {
+      "name": "an aggregate interaction has one defined composite outcome",
+      "steps": [
+        { "event": "S opens an interaction whose contract permits accumulating inquiries and promises answers identified by their contributing message IDs" },
+        { "event": "C and D target S with additional inquiries and are admitted", "expect": ["taken for each as added-to-turn with turn S", "the aggregate contract defines how the inquiries relate to the terminal result"] },
+        { "event": "the actor completes S", "expect": ["one result for S under the aggregate output contract", "the response identifies how the admitted inquiries were addressed", "no accidental combination of unrelated operation output schemas"] }
+      ]
+    },
+    {
+      "name": "model runs and delegated results contribute to the parent outcome",
+      "steps": [
+        { "event": "parent actor A has open turn S and consults actor B through separate turn U in B's conversation" },
+        { "event": "B uses one or more internal model calls and returns result R for U", "expect": ["R is B's addressed result under U's response contract", "R closes U rather than S", "A may incorporate R while S remains open"] },
+        { "event": "A emits replaceable progress while synthesizing its response", "expect": ["progress does not close S", "provisional progress is not an independently completed typed deliverable"] },
+        { "event": "A completes its own response", "expect": ["A emits the terminal result for S under S's response contract", "no one-to-one mapping between model calls and protocol turns is required"] }
+      ]
+    },
+    {
+      "name": "opening-request suppression and duplicate handling precede new admission",
+      "steps": [
+        { "event": "stop T with turn S has been accepted before opening request S; S has no in_response_to" },
+        { "event": "S arrives and passes verification, authorization, and structural checks", "expect": ["ack S", "taken for S as not-acted-on without turn", "no new work from the suppressed S"] },
+        { "event": "an identical copy of S arrives later", "expect": ["normal duplicate acknowledgement", "no reclassification of S as a new turn", "no additional execution"] }
+      ]
+    }
+  ]
+}

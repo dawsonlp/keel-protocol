@@ -1,0 +1,645 @@
+{
+  "description": "Required core behavior within the live-context boundary. These are abstract conformance traces, not evidence that an actor implementation has passed them. Restart durability is not core conformance. Unless a step states otherwise, conversation traffic uses an explicitly selected applicable continuity profile with valid authorized guards and retained required context at admission; stale traffic from an ended scope is rejected at that boundary before ordinary correlation or disposition handling.",
+  "cases": [
+    {
+      "name": "lost acknowledgement does not repeat work in a retained context",
+      "steps": [
+        {
+          "event": "requester sends say S"
+        },
+        {
+          "event": "actor accepts S in the live context",
+          "expect": [
+            "ack S",
+            "exactly one semantic handling of S"
+          ]
+        },
+        {
+          "event": "transport drops ack S"
+        },
+        {
+          "event": "requester resends identical S",
+          "expect": [
+            "ack S",
+            "no repeated semantic handling of S"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "inability to accept in the live context is busy",
+      "steps": [
+        {
+          "event": "actor cannot accept say S in the live context",
+          "expect": [
+            "refusal busy for S",
+            "no ack S",
+            "no semantic handling of S"
+          ]
+        },
+        {
+          "event": "requester retries S after backoff",
+          "expect": [
+            "same message id",
+            "busy did not consume a sending attempt"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stop overtakes an in-flight opening request within a live context",
+      "steps": [
+        {
+          "event": "requester sends fresh say S without in_response_to; transport delays it"
+        },
+        {
+          "event": "requester sends stop T with turn S"
+        },
+        {
+          "event": "actor accepts T",
+          "expect": [
+            "ack T",
+            "suppression of opening request S from this asker in this conversation while the context is retained"
+          ]
+        },
+        {
+          "event": "S arrives",
+          "expect": [
+            "ack S",
+            "taken for S as not-acted-on",
+            "no work starts for S"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "silence establishes no execution outcome",
+      "steps": [
+        {
+          "event": "requester sends say S; no response arrives"
+        },
+        {
+          "event": "requester exhausts attempts",
+          "expect": [
+            "S reported as not confirmed",
+            "no assertion that S failed or was cancelled",
+            "following submissions remain held until explicit release"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "description does not require application services",
+      "steps": [
+        {
+          "event": "requester sends describe with only a configured actor address and compatible trust"
+        },
+        {
+          "event": "actor answers",
+          "expect": [
+            "signed description naming the request",
+            "no factory, locator, registry, or knowledge-service dependency"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "memory-only acceptance is core conformant",
+      "steps": [
+        {
+          "event": "The actor and requester select keel.provisioned-context.v1, complete fresh provisioning for C and both receive guards, and use no durable storage"
+        },
+        {
+          "event": "The actor admits say S while its guard and required context remain active",
+          "expect": [
+            "ack S is permitted",
+            "handling and duplicate recognition apply within that protected context",
+            "no claim that acceptance survives connection loss or restart"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a missed result need not be recoverable in the core",
+      "steps": [
+        {
+          "event": "actor sends result R; transport loses every copy"
+        },
+        {
+          "event": "notification attempts are exhausted",
+          "expect": [
+            "R is not confirmed",
+            "actor may proceed to later notifications",
+            "no mandatory history query or replay",
+            "requester may remain unaware of completion"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "state loss does not resolve an earlier outcome",
+      "steps": [
+        {
+          "event": "The actor accepts say S in provisioned C1 and sends ack S"
+        },
+        {
+          "event": "The actor detects loss of its required conversation state",
+          "expect": [
+            "retire its guard before further admission or replacement state",
+            "close the connection and disable old-scope conversation traffic"
+          ]
+        },
+        {
+          "event": "The requester observes a failed connection and reconnects",
+          "expect": [
+            "a new connection requires fresh provisioning and a fresh C2 under this profile",
+            "no requirement to restore or resume S",
+            "no claim that S failed or had no effects",
+            "do not automatically repeat uncertain work in C2"
+          ]
+        },
+        {
+          "event": "An original frame signed for C1 reaches the retired guard or the C2 connection",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "do not admit it as fresh work even if no C1 history remains"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "approval decisions are once per retained context",
+      "steps": [
+        {
+          "event": "approval A is pending in its originator's live context, independently of any work turn"
+        },
+        {
+          "event": "A's originator accepts authorized decision D with matching digest before its deadline"
+        },
+        {
+          "event": "identical D arrives again",
+          "expect": [
+            "duplicate acknowledgement",
+            "no second decision"
+          ]
+        },
+        {
+          "event": "different decision D2 for A arrives",
+          "expect": [
+            "refusal closed",
+            "accepted decision D remains unchanged"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a decision cannot recreate an unknown approval",
+      "steps": [
+        {
+          "event": "live context has no approval A"
+        },
+        {
+          "event": "otherwise valid decision D naming A arrives",
+          "expect": [
+            "refusal unknown",
+            "no creation or reopening of A",
+            "no authority inferred from the decision alone"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "actor policy may release progress before notification attempts exhaust",
+      "steps": [
+        {
+          "event": "The conversation actor has sent progress P in its ordinary slot and has terminal result R ready; P has no confirmed acceptance or terminal refusal and its attempt limit has not been reached"
+        },
+        {
+          "event": "Actor infrastructure ends P's local attempts under its own policy",
+          "expect": [
+            "release P's sending slot",
+            "P remains not confirmed",
+            "do not infer non-delivery, withdrawal, or reversal of its reported actor transition"
+          ]
+        },
+        {
+          "event": "The actor sends R in the available ordinary slot",
+          "expect": [
+            "R uses its own exact signed bytes and delivery state",
+            "no second concurrent ordinary slot is introduced",
+            "no eventual delivery guarantee for P or R follows"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "repeated busy does not prevent policy release of a notification slot",
+      "steps": [
+        {
+          "event": "Actor progress P occupies the ordinary notification slot; the receiver repeatedly returns valid busy refusals and no acceptance is established"
+        },
+        {
+          "event": "Busy is handled while retrying P",
+          "expect": [
+            "wait for backoff without consuming an attempt",
+            "do not treat busy as acknowledgement, acceptance, or terminal refusal"
+          ]
+        },
+        {
+          "event": "Actor infrastructure explicitly ends P's local attempts and releases its slot despite the attempt budget remaining",
+          "expect": [
+            "P stays not confirmed",
+            "the actor may proceed to its ready result R",
+            "no required priority scheduler or mandatory release time"
+          ]
+        },
+        {
+          "event": "After valid R is accepted for known S, a delayed first copy of still-valid P for S arrives",
+          "expect": [
+            "ack P as a consistent historical fact under P06",
+            "do not reopen S",
+            "the sender's earlier release did not retract P"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "resuming a released notification preserves its bytes slot and continuity",
+      "steps": [
+        {
+          "event": "The actor retained exact signed P after policy release; P is unconfirmed and newer R currently holds the ordinary sending slot"
+        },
+        {
+          "event": "Infrastructure elects to attempt P again within independently established context continuity",
+          "expect": [
+            "use the exact original compact JWS and message ID",
+            "wait for the ordinary slot rather than sending in an additional slot",
+            "do not rewrite P under a renewed credential"
+          ]
+        },
+        {
+          "event": "After R's slot is released, the original P is sent",
+          "expect": [
+            "ordinary current admission or eligible retained-copy rules govern receipt",
+            "do not infer prior receiver acceptance merely from local retention or resumption"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a fresh connection alone cannot resume a released notification safely",
+      "steps": [
+        {
+          "event": "Under keel.provisioned-context.v1 the actor retains unconfirmed P from C1, but its connection fails and its guard retires"
+        },
+        {
+          "event": "A new connection becomes reachable",
+          "expect": [
+            "fresh provisioning with a different C2 is required",
+            "do not automatically replay P or rewrite its signed C1 to C2",
+            "preserve uncertainty about any earlier copy and effects"
+          ]
+        },
+        {
+          "event": "Original P signed for C1 is nevertheless delivered on active C2",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "local release of P's sending slot supplies no continuity evidence"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "actor notification release policy does not transfer requester release authority",
+      "steps": [
+        {
+          "event": "Principal actor A is the requester in a conversation owned by actor B; A's submission S is unconfirmed and holds A's ordinary slot"
+        },
+        {
+          "event": "S exhausts its attempts",
+          "expect": [
+            "later submissions remain held until the requester's applicable explicit release or confirmation/refusal",
+            "the actor prefix in A's name does not make it the conversation actor",
+            "B's notification-release policy is not authority to release A's submission"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ending delivery attempts does not withdraw an independent approval",
+      "steps": [
+        {
+          "event": "The conversation actor originated pending approval P and sent it; P's delivery is unconfirmed and its deadline has not passed"
+        },
+        {
+          "event": "Actor infrastructure ends local delivery attempts and releases P's ordinary sending slot",
+          "expect": [
+            "P remains pending under its owner and deadline",
+            "no acceptance, decision, expiry, or withdrawal is inferred from delivery release",
+            "ordinary owner and deadline duties still apply"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a valid result confirms its opening without a separate ack",
+      "steps": [
+        {
+          "event": "Requester opening S holds the ordinary sending slot; ack S and taken S are lost; unrelated submission N waits in the queue"
+        },
+        {
+          "event": "Valid result R for retained eligible opening S passes complete current admission",
+          "expect": [
+            "accept R and ack R",
+            "confirm acceptance of S and stop S retries",
+            "release only S's slot so N may proceed under ordinary rules",
+            "retain R as the actual evidence; do not fabricate a received ack S"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a valid question confirms its known opening before taken",
+      "steps": [
+        {
+          "event": "Retained eligible opening S is unconfirmed in its sending slot; no taken S has arrived"
+        },
+        {
+          "event": "Valid question Q for S passes full admission",
+          "expect": [
+            "accept Q and ack Q",
+            "confirm S and release any slot held by S",
+            "Q establishes S opened without proving it is still active now",
+            "do not manufacture an ack S"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "valid progress confirms its known opening before taken",
+      "steps": [
+        {
+          "event": "Retained eligible opening S is unconfirmed in its sending slot; no taken S has arrived"
+        },
+        {
+          "event": "Valid progress P for S passes full admission",
+          "expect": [
+            "accept P and ack P",
+            "confirm S and release any slot held by S",
+            "do not confirm unrelated contributions, answers, or stops",
+            "do not manufacture an ack S"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "not-acted-on confirms handling of only its identified say",
+      "steps": [
+        {
+          "event": "The requester has retained contribution C naming S; C is unconfirmed and holds the ordinary slot; no report has established S opened"
+        },
+        {
+          "event": "Consistent taken T names C as not-acted-on without turn and passes full admission",
+          "expect": [
+            "ack T",
+            "confirm handling of C, stop its retries, and release C's slot",
+            "do not infer C was admitted or S opened",
+            "do not confirm S solely from C's rejected contribution disposition"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "positive contribution admission confirms the input and opening only",
+      "steps": [
+        {
+          "event": "Opening S was explicitly released while unconfirmed; retained contribution C naming S now holds the ordinary slot and stop K naming S holds the permitted additional slot"
+        },
+        {
+          "event": "Valid taken T admits C as added-to-turn with turn S",
+          "expect": [
+            "ack T",
+            "confirm C and S from their specific admission evidence",
+            "stop C retries and release C's slot",
+            "K remains unconfirmed in its own slot",
+            "do not fabricate received acknowledgements for C or S"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "positive answer admission confirms the answer and opening only",
+      "steps": [
+        {
+          "event": "The requester retains S, Q for S, and issued answer A naming Q; A is unconfirmed in the ordinary slot and stop K for S is unconfirmed in the additional slot"
+        },
+        {
+          "event": "Valid taken T admits A as answer with question Q and turn S",
+          "expect": [
+            "ack T",
+            "confirm A and S; release any sending slots still held by those messages",
+            "retain Q's answered disposition",
+            "K remains unconfirmed",
+            "do not equate the received T with received ack frames"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a result does not confirm contributions answers or a named stop",
+      "steps": [
+        {
+          "event": "The requester retains S, earlier unconfirmed answer A whose slot was explicitly released, contribution C currently in flight, and stop K beside C targeting S"
+        },
+        {
+          "event": "Valid result R naming S with status stopped passes full admission",
+          "expect": [
+            "ack R and retain S's terminal result",
+            "confirm S only if not already confirmed",
+            "do not confirm A, C, or K from the result status or their relation to S",
+            "C and K retain their independent unconfirmed sending slots",
+            "later ordinary submissions remain held until those slots are independently settled or explicitly released"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "answered closure does not confirm even the only locally known answer",
+      "steps": [
+        {
+          "event": "The requester retains Q and issued answer A naming Q; A holds an unconfirmed sending slot and no other candidate answer is locally known"
+        },
+        {
+          "event": "Valid owner closed C names Q with why answered",
+          "expect": [
+            "ack C and establish Q's authoritative closure reason",
+            "do not identify A as the admitted answer or confirm A",
+            "A's slot remains held until specific confirmation, terminal refusal, or explicit release",
+            "absence of another locally known answer is not proof that none exists"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "decided closure does not confirm a particular decision",
+      "steps": [
+        {
+          "event": "Independent approval P is known; the requester has issued decision D naming P and D remains unconfirmed"
+        },
+        {
+          "event": "Valid owner closed C names P with why decided",
+          "expect": [
+            "ack C and retain P's terminal reason",
+            "do not confirm D or release its sending slot from this closure alone",
+            "do not infer the decision contents from closed P"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an invalid semantic report cannot confirm the input it names",
+      "steps": [
+        {
+          "event": "The requester retains opening S and contribution C targeting S; C is unconfirmed in its sending slot"
+        },
+        {
+          "event": "Authenticated structurally valid taken T names C but claims as new-turn with turn C",
+          "expect": [
+            "refusal malformed for T after complete semantic checking",
+            "do not confirm C before discovering its inconsistent role",
+            "C's slot remains held"
+          ]
+        },
+        {
+          "event": "Isolated semantic-validation specimen only: authenticated report T2 naming C is supplied directly to the semantic checker with a different actor signer lacking authority in this context; the earlier admission guard is intentionally not executed in this specimen",
+          "expect": [
+            "the isolated semantic check identifies not-authorized for T2",
+            "do not confirm C or change its sending slot",
+            "a full receiver rejects the foreign signer at its earlier profile/scope guard; this specimen does not require sending a core refusal after that rejection"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "late confirmation of a released input cannot release a newer slot",
+      "steps": [
+        {
+          "event": "The requester explicitly released unconfirmed opening S; newer opening N now holds the ordinary slot"
+        },
+        {
+          "event": "Valid result R for eligible S arrives",
+          "expect": [
+            "ack R and confirm S",
+            "update S's established disposition without releasing N's slot",
+            "N remains subject to its own confirmation, refusal, or explicit release"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "acknowledgement correlation is scoped rather than an ID-only lookup",
+      "steps": [
+        {
+          "event": "Requester submission S with UUID X is unconfirmed in conversation C; the receiver knows no corresponding outgoing X in conversation D"
+        },
+        {
+          "event": "An authenticated actor ack names X and is correctly addressed to independently established active conversation D on D's own authorized guard, where no outgoing X is known",
+          "expect": [
+            "do not confirm S in C",
+            "do not release C's sending slot",
+            "do not respond to the control acknowledgement"
+          ]
+        },
+        {
+          "event": "A valid ack naming X arrives from S's intended receiver in C",
+          "expect": [
+            "confirm S and release its slot",
+            "retain the actual ack as evidence",
+            "send no acknowledgement of that ack"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a closed question admitted without its parent confirms no absent opening",
+      "steps": [
+        {
+          "event": "The receiver retains an authorized owner closure marker for unseen Q, but no live opening S"
+        },
+        {
+          "event": "Q arrives naming S and qualifies for the closed-question exception",
+          "expect": [
+            "ack Q and retain its already-closed status",
+            "do not create or confirm S",
+            "do not manufacture a received ack or a sending slot for S",
+            "the ordinary eligible-opening confirmation rule is not triggered"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "causal references and evidence attachments do not confirm their subjects",
+      "steps": [
+        {
+          "event": "The requester retains eligible S and separate unconfirmed request C in another conversation; a valid progress notification P for S carries caused_by and evidence references to C"
+        },
+        {
+          "event": "P passes full admission",
+          "expect": [
+            "ack P and confirm only S under P's report kind",
+            "do not confirm C, release its slot, or infer its admission from attribution or attached evidence"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a validated description confirms its retained describe request",
+      "steps": [
+        {
+          "event": "The requester has a retained non-conversation describe D addressed to actor B and has received no separate ack D"
+        },
+        {
+          "event": "B's valid description names D and passes current authentication, addressing, structure, and semantic correlation checks",
+          "expect": [
+            "confirm D and stop its retries",
+            "retain the actual description as acceptance evidence",
+            "do not fabricate a received ack D"
+          ]
+        },
+        {
+          "event": "Another currently authenticated actor C sends a description naming D through an independently assured actor-level route, but lacks authority to answer the request addressed to B",
+          "expect": [
+            "refusal not-authorized for that description",
+            "do not use it as confirmation of D or another outstanding describe"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a description in the wrong scope cannot settle another request",
+      "steps": [
+        {
+          "event": "The requester retains non-conversation describe D to B; a separate outgoing message S to B in active conversation C happens to have the same UUID under its distinct request scope"
+        },
+        {
+          "event": "Valid non-conversation description from B names D",
+          "expect": [
+            "confirm only D",
+            "do not release S's conversation sending slot because its UUID matches"
+          ]
+        },
+        {
+          "event": "A fresh authenticated description from B naming D incorrectly includes to.conversation C; its sender, recipient and C match the active guard, but the description payload schema forbids that field",
+          "expect": [
+            "refusal malformed for that description",
+            "do not confirm D or S from the refused response"
+          ]
+        }
+      ]
+    }
+  ]
+}

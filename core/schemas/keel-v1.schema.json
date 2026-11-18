@@ -1,0 +1,1047 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:keel-protocol:core:1",
+  "title": "Keel core contract 1, unreleased draft",
+  "description": "Core payload structure for core/asking-contract.md. Verify signatures, then version, schema, and content block types. Conversation admission also requires an established continuity profile and active scope guard, which payload validation cannot establish. Recovery and durability are optional extension guarantees, not schema dependencies.",
+  "type": "object",
+  "required": [
+    "kind"
+  ],
+  "properties": {
+    "kind": {
+      "enum": [
+        "say",
+        "stop",
+        "taken",
+        "progress",
+        "question",
+        "result",
+        "closed",
+        "approval",
+        "decide",
+        "refusal",
+        "ack",
+        "describe",
+        "description"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "say"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/say"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "stop"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/stop"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "taken"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/taken"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "progress"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/progress"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "question"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/question"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "result"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/result"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "closed"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/closed"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "approval"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/approval"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "decide"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/decide"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "refusal"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/refusal"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "ack"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/ack"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "describe"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/describe"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "description"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "$ref": "#/$defs/description"
+      }
+    }
+  ],
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "description": "A UUID in canonical form, of any defined version; not nil or max."
+    },
+    "principal": {
+      "type": "string",
+      "pattern": "^(party|actor):[A-Za-z0-9._@+-]{1,128}(?![\\s\\S])",
+      "description": "An exact governed party or actor principal name. Certificate issuer/key naming authority and action permission require separate semantic checks."
+    },
+    "time": {
+      "type": "string",
+      "pattern": "^(?!0000)[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]{1,6})?Z(?![\\s\\S])",
+      "description": "Core UTC RFC 3339 profile: years 0001-9999, seconds 00-59, optional 1-6 fractional digits. Whole-string syntax and component ranges are checked here; actual Gregorian month/day/leap-year validation is additionally REQUIRED at structural checking under core/timestamps.md. Preserve complete microsecond values in comparisons and original signed strings. No normalization, leap-second labels, or excessive fractional digits."
+    },
+    "jws": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
+      "description": "A signed message, JWS compact serialization."
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{43}$",
+      "description": "SHA-256, base64url without padding."
+    },
+    "block": {
+      "description": "A content block. Only text is defined; other types pass structural validation and are then refused as unsupported.",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "if": {
+        "properties": {
+          "type": {
+            "const": "text"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "type": {
+            "const": "text"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "content": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/block"
+      }
+    },
+    "content-nonempty": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/block"
+      },
+      "minItems": 1
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Extension data. Unknown keys are ignored. The core defines no application metadata vocabulary."
+    },
+    "to-conversation": {
+      "type": "object",
+      "required": [
+        "principal",
+        "conversation"
+      ],
+      "properties": {
+        "principal": {
+          "$ref": "#/$defs/principal"
+        },
+        "conversation": {
+          "$ref": "#/$defs/uuid"
+        }
+      },
+      "additionalProperties": false
+    },
+    "common": {
+      "description": "Every message of the standalone core/1 contract: the envelope, at version 1.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/envelope"
+        }
+      ],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "evidence": {
+          "description": "Signed core messages attached unchanged as evidence, never as new requests."
+        },
+        "caused_by": {
+          "$ref": "#/$defs/caused-by"
+        }
+      }
+    },
+    "say": {
+      "description": "Asker: without in_response_to requests a new turn; naming the opening say contributes to that turn; naming a question answers it. Target state, admission, and operation compatibility require semantic validation.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "kind": {
+          "const": "say"
+        },
+        "to": {
+          "$ref": "#/$defs/to-conversation"
+        },
+        "content": {
+          "$ref": "#/$defs/content-nonempty"
+        },
+        "operation": {
+          "description": "Selects the opening request's operation. A contribution or answer may omit it or repeat the opening operation, never select a different one.",
+          "type": "string",
+          "minLength": 1
+        },
+        "data": {
+          "description": "Any JSON value within the core signed-JSON profile. Presence is distinct from null or any falsey value. An opening request with a selected input schema requires data and validates its value against that schema. Contribution data follows the retained contribution rules; receipt implies no merge, replacement, or rerun."
+        }
+      },
+      "required": [
+        "kind",
+        "content"
+      ],
+      "unevaluatedProperties": false
+    },
+    "stop": {
+      "description": "Asker: stop only the identified turn, or suppress its fresh opening say before it arrives. The required turn names that opening say in this conversation, never a contribution or whichever turn is current. It does not imply application-job cancellation, rollback, or descendant quiescence.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "kind": {
+          "const": "stop"
+        },
+        "to": {
+          "$ref": "#/$defs/to-conversation"
+        },
+        "turn": {
+          "$ref": "#/$defs/uuid",
+          "description": "The asker's fresh opening say identity in this conversation, whether already known or still in transit. Target eligibility and disposition require semantic checks."
+        }
+      },
+      "required": [
+        "kind",
+        "turn"
+      ],
+      "unevaluatedProperties": false
+    },
+    "taken": {
+      "description": "Actor: reports the semantic disposition of a known say, distinct from ack. new-turn reports an opened response obligation; added-to-turn and answer report admission to the original turn; not-acted-on reports no contribution or work. A compatible late report does not repeat admission or reopen a terminal turn. Correlation and consistency require retained context.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "if": {
+            "properties": {
+              "as": {
+                "enum": [
+                  "new-turn",
+                  "added-to-turn",
+                  "answer"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "turn"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "as": {
+                "const": "answer"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "question"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "question"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "as": {
+                "const": "not-acted-on"
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "required": [
+                "turn"
+              ]
+            }
+          }
+        }
+      ],
+      "properties": {
+        "kind": {
+          "const": "taken"
+        },
+        "to": {
+          "$ref": "#/$defs/to-conversation"
+        },
+        "as": {
+          "enum": [
+            "new-turn",
+            "added-to-turn",
+            "answer",
+            "not-acted-on"
+          ]
+        },
+        "turn": {
+          "$ref": "#/$defs/uuid"
+        },
+        "question": {
+          "$ref": "#/$defs/uuid"
+        }
+      },
+      "required": [
+        "kind",
+        "in_response_to",
+        "as"
+      ],
+      "unevaluatedProperties": false
+    },
+    "progress": {
+      "description": "Actor: provisional output or status for a known eligible opening, optionally superseding an earlier progress in the same turn; not a terminal result or an independent structured deliverable. A valid late first delivery is accepted without reopening the turn. Arrival order alone establishes no supersession.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "kind": {
+          "const": "progress"
+        },
+        "to": {
+          "$ref": "#/$defs/to-conversation"
+        },
+        "content": {
+          "$ref": "#/$defs/content-nonempty"
+        },
+        "replaces": {
+          "description": "Earlier progress of this actor in this turn. An unseen target remains an unresolved claim, with no identity reservation. Independently established wrong-kind/turn targets, self-reference and cycles are malformed. Prior refusal alone does not invalidate a fresh update; it creates no superseding edge to or through the refused predecessor. Later-discovered invalidity cannot reverse prior acceptance or invalidate an otherwise valid target. Established replacement relations can form chains and branches; incomparable successors have no core-selected winner.",
+          "$ref": "#/$defs/uuid"
+        }
+      },
+      "required": [
+        "kind",
+        "in_response_to",
+        "content"
+      ],
+      "unevaluatedProperties": false
+    },
+    "question": {
+      "description": "Actor: asks for an answer within the identified turn. A compatible late first delivery for a known terminal turn is retained without becoming open; the result alone does not establish its precise answered, expired or withdrawn reason. A valid prior owner-closure marker permits retaining a delayed question already closed without reconstructing an unseen parent.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "kind": {
+          "const": "question"
+        },
+        "to": {
+          "$ref": "#/$defs/to-conversation"
+        },
+        "content": {
+          "$ref": "#/$defs/content-nonempty"
+        },
+        "deadline": {
+          "$ref": "#/$defs/time"
+        }
+      },
+      "required": [
+        "kind",
+        "in_response_to",
+        "content"
+      ],
+      "unevaluatedProperties": false
+    },
+    "result": {
+      "description": "Actor: the turn's single terminal response, accounting for admitted contributions under its opening response contract. Receipt can establish the outcome for a known eligible opening before taken arrives. An additional result ID is malformed even for an identical outcome; exact retained retries keep their disposition. A successful data value matches that contract's declared output schema. stopped terminates the identified response obligation; it does not imply rollback, application-job cancellation, or that already-started effects and delegated work have ceased.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "kind": {
+          "const": "result"
+        },
+        "to": {
+          "$ref": "#/$defs/to-conversation"
+        },
+        "status": {
+          "enum": [
+            "succeeded",
+            "failed",
+            "needs-clarification",
+            "stopped",
+            "denied"
+          ]
+        },
+        "content": {
+          "$ref": "#/$defs/content"
+        },
+        "data": {
+          "description": "Any JSON value within the core signed-JSON profile. A succeeded result with a selected output schema requires data and validates its value against that schema. Absence is distinct from null, false, zero, empty text, array, or object; non-success statuses are not constrained by the success schema."
+        }
+      },
+      "required": [
+        "kind",
+        "in_response_to",
+        "status",
+        "content"
+      ],
+      "unevaluatedProperties": false
+    },
+    "closed": {
+      "description": "The originator of a question or approval reports its closure. An approval originator may occupy either conversation role. Ownership, reason compatibility, and closure-before-request handling require semantic checks; closure alone does not establish permission or execution.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "kind": {
+          "const": "closed"
+        },
+        "to": {
+          "$ref": "#/$defs/to-conversation"
+        },
+        "why": {
+          "enum": [
+            "answered",
+            "decided",
+            "expired",
+            "withdrawn"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "in_response_to",
+        "why"
+      ],
+      "unevaluatedProperties": false
+    },
+    "approval": {
+      "description": "Either side: initiates an independent authority exchange identified by this message id, without requiring a say or work turn. Optional in_response_to supplies same-conversation correlation, not lifecycle ownership or an automatic dependency on a turn. The originator owns decision acceptance, expiry, withdrawal, and closure.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "kind": {
+          "const": "approval"
+        },
+        "to": {
+          "$ref": "#/$defs/to-conversation"
+        },
+        "action": {
+          "$ref": "#/$defs/content-nonempty"
+        },
+        "reason": {
+          "$ref": "#/$defs/content-nonempty"
+        },
+        "risk": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "deadline": {
+          "$ref": "#/$defs/time"
+        },
+        "bound_required": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "action",
+        "reason",
+        "risk",
+        "deadline",
+        "bound_required"
+      ],
+      "unevaluatedProperties": false
+    },
+    "decide": {
+      "description": "Either side: a decision on the identified approval. The approval's originator accepts at most one authorized decision while the approval remains pending before its deadline, checking any required request binding. Granting permission does not establish action execution or completion.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "kind": {
+          "const": "decide"
+        },
+        "to": {
+          "$ref": "#/$defs/to-conversation"
+        },
+        "approve": {
+          "type": "boolean"
+        },
+        "note": {
+          "type": "string"
+        },
+        "request_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "kind",
+        "in_response_to",
+        "approve"
+      ],
+      "unevaluatedProperties": false
+    },
+    "refusal": {
+      "description": "Either side: an ordinary semantic refusal reports nonacceptance under its defined reason. A reserved verification diagnostic reports failure of a delivered frame, not nonexecution of the original message or earlier copies. All refusals are controls and receive no core reply.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "if": {
+            "properties": {
+              "to": {
+                "properties": {
+                  "principal": {
+                    "const": "unverified"
+                  }
+                },
+                "required": [
+                  "principal"
+                ]
+              }
+            },
+            "required": [
+              "to"
+            ]
+          },
+          "then": {
+            "description": "Reserved diagnostics carry only the minimal signed control fields. Verification stage, authorized route, expected signer, original scope and unique local attempt association are separate semantic checks.",
+            "propertyNames": {
+              "enum": [
+                "version",
+                "id",
+                "kind",
+                "sent_at",
+                "to",
+                "reason",
+                "in_response_to"
+              ]
+            },
+            "properties": {
+              "reason": {
+                "enum": [
+                  "malformed",
+                  "algorithm-key-mismatch",
+                  "certificate-invalid",
+                  "certificate-expired",
+                  "key-not-certified",
+                  "bad-signature",
+                  "not-canonical",
+                  "not-addressed-to-me"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "kind": {
+          "const": "refusal"
+        },
+        "to": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/to-conversation"
+            },
+            {
+              "$ref": "#/$defs/to-principal"
+            },
+            {
+              "$ref": "#/$defs/to-unverified"
+            }
+          ]
+        },
+        "reason": {
+          "enum": [
+            "malformed",
+            "algorithm-key-mismatch",
+            "certificate-invalid",
+            "certificate-expired",
+            "key-not-certified",
+            "bad-signature",
+            "not-canonical",
+            "not-addressed-to-me",
+            "not-authorized",
+            "unknown",
+            "closed",
+            "wrong-request",
+            "unbound-decision",
+            "nothing-to-stop",
+            "unsupported",
+            "busy"
+          ]
+        },
+        "detail": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "reason"
+      ],
+      "unevaluatedProperties": false
+    },
+    "ack": {
+      "description": "The receiver accepted the referenced message within its applicable live scope. Core acknowledgement does not promise persistence or restart recovery. An ack is a control and receives no core reply.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "kind": {
+          "const": "ack"
+        },
+        "to": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/to-conversation"
+            },
+            {
+              "$ref": "#/$defs/to-principal"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "in_response_to"
+      ],
+      "unevaluatedProperties": false
+    },
+    "describe": {
+      "description": "Request: the actor's signed description.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "kind": {
+          "const": "describe"
+        },
+        "to": {
+          "$ref": "#/$defs/to-principal"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "unevaluatedProperties": false
+    },
+    "description": {
+      "description": "Response to describe.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        }
+      ],
+      "properties": {
+        "kind": {
+          "const": "description"
+        },
+        "to": {
+          "$ref": "#/$defs/to-principal"
+        },
+        "name": {
+          "$ref": "#/$defs/actor"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "algorithms": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "EdDSA",
+              "ES256"
+            ]
+          },
+          "allOf": [
+            {
+              "contains": {
+                "const": "EdDSA"
+              }
+            },
+            {
+              "contains": {
+                "const": "ES256"
+              }
+            }
+          ],
+          "uniqueItems": true
+        },
+        "honored_request_metadata": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/operation"
+          },
+          "description": "Operations offered in this description. Names must be distinct by exact string equality; this semantic check is local to one description and does not promise compatibility across descriptions."
+        }
+      },
+      "required": [
+        "kind",
+        "in_response_to",
+        "name",
+        "summary",
+        "algorithms",
+        "honored_request_metadata"
+      ],
+      "unevaluatedProperties": false
+    },
+    "envelope": {
+      "type": "object",
+      "required": [
+        "version",
+        "id",
+        "kind",
+        "sent_at",
+        "to"
+      ],
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "id": {
+          "$ref": "#/$defs/uuid"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "sent_at": {
+          "$ref": "#/$defs/time"
+        },
+        "in_response_to": {
+          "$ref": "#/$defs/uuid",
+          "description": "Correlation in the same conversation, except actor-level responses and reserved verification diagnostics. A diagnostic echoes a claim from a rejected frame; submission effects require unique retained attempt association on the original authorized route and scope. For say, names only a turn's opening say or a question; absence requests a new turn. Reference kind, state and association are semantic checks."
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        },
+        "on_behalf_of": {
+          "$ref": "#/$defs/principal"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/jws"
+          },
+          "minItems": 1
+        }
+      },
+      "description": "Fields shared by core signed messages. This standalone core/1 draft accepts message version 1."
+    },
+    "actor": {
+      "type": "string",
+      "pattern": "^actor:[A-Za-z0-9._@+-]{1,128}(?![\\s\\S])",
+      "description": "An actor principal. A transport address is a separate binding concern."
+    },
+    "to-principal": {
+      "type": "object",
+      "required": [
+        "principal"
+      ],
+      "properties": {
+        "principal": {
+          "$ref": "#/$defs/principal"
+        }
+      },
+      "additionalProperties": false
+    },
+    "to-unverified": {
+      "description": "Reserved destination only for a minimal verification-diagnostic refusal. It is not a principal and has no conversation. Receiving it requires the diagnostic exception, not ordinary recipient matching.",
+      "type": "object",
+      "required": [
+        "principal"
+      ],
+      "properties": {
+        "principal": {
+          "const": "unverified"
+        }
+      },
+      "additionalProperties": false
+    },
+    "caused-by": {
+      "description": "The message, in another conversation, that led to this one: set on every delegated request.",
+      "type": "object",
+      "required": [
+        "actor",
+        "conversation",
+        "message"
+      ],
+      "properties": {
+        "actor": {
+          "$ref": "#/$defs/actor"
+        },
+        "conversation": {
+          "$ref": "#/$defs/uuid"
+        },
+        "message": {
+          "$ref": "#/$defs/uuid"
+        }
+      },
+      "additionalProperties": false
+    },
+    "operation": {
+      "description": "A named interaction contract selected by an opening request and retained for that turn. Contribution support, input structure, and implementation technique are independent; application meaning is supplied by the actor.",
+      "type": "object",
+      "required": [
+        "name",
+        "guidance"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "guidance": {
+          "description": "When and how to ask, including permitted contributions, interpretation and validation of contribution data, amendment support, questions, and approval dependencies. State whether pending approval is still needed when work ends and who withdraws it when work is abandoned.",
+          "type": "string",
+          "minLength": 1
+        },
+        "input": {
+          "description": "A self-contained object-form JSON Schema draft 2020-12 for the opening request's required data. Also validates a full-input replacement when the contribution rules permit one; it does not automatically describe other contributions. Follow the embedded-schema profile in core/schemas/README.md.",
+          "$ref": "#/$defs/operation-schema"
+        },
+        "output": {
+          "description": "A self-contained object-form JSON Schema draft 2020-12 for a succeeded terminal result's required data, retained from the opening contract despite later contributions or changed descriptions. Follow the embedded-schema profile in core/schemas/README.md.",
+          "$ref": "#/$defs/operation-schema"
+        },
+        "effects": {
+          "description": "false if asking again, as a new request, is harmless.",
+          "type": "boolean"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "operation-schema": {
+      "description": "Structural boundary only: an object-form embedded operation schema, with the fixed dialect when explicit. Draft 2020-12 meta-schema validity, nested dialect consistency and self-contained reference resolution require the separate semantic checks in core/schemas/README.md. Nested boolean schemas are allowed.",
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "const": "https://json-schema.org/draft/2020-12/schema"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,914 @@
+{
+  "description": "Core behavioral requirements for retained authentication, approval credential lifetimes, governed principal names and constrained issuer authority, evidence and response audiences, including the approved exact retained expired-retry rule. Abstract traces, not executed actor conformance. Unless a trace says otherwise, the response route is independently assured for its recipient and current disclosure authorization permits the stated response. Generic WebSocket rejection means code 1008 without a reason or application message that reveals a retained disposition; these traces do not claim constant-time processing or eliminate every timing side channel. Issuer and name assignments in these traces are example governance policy, not a configuration format, network-prefix requirement or federation service. Unless a step states otherwise, conversation traffic uses an explicitly selected applicable continuity profile with valid authorized guards and retained required context at admission; stale traffic from an ended scope is rejected at that boundary before ordinary correlation or disposition handling.",
+  "cases": [
+    {
+      "name": "a timely decision outlives the original approval certificate",
+      "steps": [
+        {
+          "event": "O issues approval P while its credential is valid, retaining exact bytes, valid issuance basis and deadline T3; A authenticates P at T0 before credential expiry T1",
+          "expect": [
+            "O owns pending P",
+            "A retains its own authentication observation",
+            "neither issuance nor authentication alone grants permission"
+          ]
+        },
+        {
+          "event": "At T2 where T1 is past and T2 < T3, A sends a new currently authenticated and authorized decide D bound to P",
+          "expect": [
+            "verify D using current admission rules",
+            "use O's retained original P without requiring its credential to remain unexpired",
+            "accept one decision and issue owner closure",
+            "P bytes and digest remain unchanged"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "issuance knowledge is distinct from peer receipt",
+      "steps": [
+        {
+          "event": "O signs valid P and retains its issuance basis, but delivery to A is lost",
+          "expect": [
+            "O may retain pending P until its deadline",
+            "O cannot claim A authenticated or accepted P"
+          ]
+        },
+        {
+          "event": "A later first receives P after its credential expires",
+          "expect": [
+            "certificate-expired under first-seen admission",
+            "O's local issuance knowledge is not A's prior authentication observation",
+            "no permission is inferred"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "credential renewal signs new decisions without rewriting the request",
+      "steps": [
+        {
+          "event": "A authenticates P then renews its own credential with the same key",
+          "expect": [
+            "retain P's original bytes and authentication basis"
+          ]
+        },
+        {
+          "event": "A signs new D with the renewed currently valid credential; O authorizes A and receives D before P's deadline",
+          "expect": [
+            "D can bind P's original digest",
+            "no re-signing of P is needed"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "authorized message-key rotation preserves principal decision policy",
+      "steps": [
+        {
+          "event": "A authenticates P under its existing exchange; its decision key is then rotated under the applicable identity policy",
+          "expect": [
+            "key rotation alone does not replace P or create decision authority"
+          ]
+        },
+        {
+          "event": "A sends D with a new key currently certified for the same authorized principal; O verifies identity, current authority, digest and pending deadline",
+          "expect": [
+            "accept D if all current policy checks pass",
+            "do not require A's new message key to be P's signing key or its own previous key"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a fresh expired decision cannot borrow request authentication",
+      "steps": [
+        {
+          "event": "O retains authenticated/validly issued P; new decide D arrives with an expired credential",
+          "expect": [
+            "certificate-expired",
+            "retained P supplies no exception for new D",
+            "P remains subject to its own pending/deadline state"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sender time does not manufacture earlier authentication",
+      "steps": [
+        {
+          "event": "A first sees expired approval P with sent_at before certificate expiry and an otherwise future approval deadline",
+          "expect": [
+            "certificate-expired",
+            "sent_at does not prove earlier receipt or admissible historical existence",
+            "do not retain it as a newly accepted approval"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "same scoped ID with different signed bytes is conflicting reuse",
+      "steps": [
+        {
+          "event": "O and A retain P with digest H; P is re-signed under a refreshed certificate with the same ID and identical decoded payload",
+          "expect": [
+            "new compact JWS is not P's original object",
+            "do not substitute the new bytes for H"
+          ]
+        },
+        {
+          "event": "The re-signed frame passes current authentication in P's retained identity/context scope",
+          "expect": [
+            "malformed for conflicting signed-object reuse",
+            "preserve original P and prior disposition"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "approval replacement has its own lifecycle",
+      "steps": [
+        {
+          "event": "O needs to replace issued approval P with a revised or freshly signed proposal Q",
+          "expect": [
+            "Q uses a new message ID and its own deadline and pending state",
+            "P is not implicitly rewritten or withdrawn"
+          ]
+        },
+        {
+          "event": "O no longer needs P and explicitly withdraws it",
+          "expect": [
+            "owner closure withdraws P under P03",
+            "a later decision for P cannot grant Q"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "context loss does not recreate a pending approval",
+      "steps": [
+        {
+          "event": "O loses P's pending state and trusted issuance basis in provisioned C1",
+          "expect": [
+            "retire C1's local guard before further admission",
+            "no stale C1 frame can recreate P"
+          ]
+        },
+        {
+          "event": "An original decision D signed for C1 is presented to its retired guard or a fresh C2 connection",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame"
+          ]
+        },
+        {
+          "event": "Separately, properly provisioned C2 has no P; a new currently authenticated decision D2 signed for C2 names P",
+          "expect": [
+            "refusal unknown for D2",
+            "D2 cannot recreate P or its authentication basis"
+          ]
+        },
+        {
+          "event": "A lost its received P state; an expired original C1 copy is presented after retirement",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "do not invent an eligible exact-copy authentication basis from the frame"
+          ]
+        },
+        {
+          "event": "Separately, fresh approval P2 signed for active authorized C2 uses the expired credential and has no eligible retained exact-copy basis",
+          "expect": [
+            "ordinary first-seen verification rejects P2 as certificate-expired",
+            "do not invent an earlier authentication observation or transplant P's lost basis into C2"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "retained authentication is scoped to exact recipient and context",
+      "steps": [
+        {
+          "event": "A has authenticated P in context C between O and A; another participant or context C2 presents its ID or bytes",
+          "expect": [
+            "do not transplant P's state into C2 or another principal's context",
+            "original signed recipient and context are unchanged",
+            "no cross-context decision authority"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "deadline and terminal decisions remain authoritative",
+      "steps": [
+        {
+          "event": "P is pending with deadline T; D arrives at or after T with sent_at < T and current valid credentials",
+          "expect": [
+            "expire P on O's current clock",
+            "closed",
+            "sender time does not reopen P"
+          ]
+        },
+        {
+          "event": "A different valid D arrives after P was withdrawn or another decision was accepted",
+          "expect": [
+            "closed",
+            "preserve original terminal state"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "current authority is distinct from earlier authentication",
+      "steps": [
+        {
+          "event": "A authenticated P earlier, but O's policy now removes A's decision authority before a new D arrives",
+          "expect": [
+            "authenticate D under current credential rules",
+            "not-authorized if A no longer may decide P",
+            "do not treat prior authentication as cached permission"
+          ]
+        },
+        {
+          "event": "O later attempts an effect under an accepted grant",
+          "expect": [
+            "effect owner checks grant validity, use and applicable resource policy",
+            "accepted approval does not prove or require execution"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "historical first inspection is not live retained verification",
+      "steps": [
+        {
+          "event": "V first encounters signed P and D after their credentials expire, with no applicable historical trust agreement",
+          "expect": [
+            "mathematical signature checks alone do not establish historical admissibility",
+            "report unestablished evidence in an authorized inspection contract"
+          ]
+        },
+        {
+          "event": "An operation requires that evidence as authority",
+          "expect": [
+            "not-authorized if required authentication cannot be established",
+            "no effect under an invented earlier timestamp"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "captured frames cannot establish a confidential response route",
+      "steps": [
+        {
+          "event": "X presents captured valid signed request S on a connection not assured for S's signer",
+          "expect": [
+            "do not register the connection as the signer's protected return route",
+            "do not disclose cached, new or queued application content"
+          ]
+        },
+        {
+          "event": "S would require protected response delivery and no authorized audience route can be established",
+          "expect": [
+            "reject the delivery at the binding boundary before admission; WebSocket closes with code 1008",
+            "do not record a terminal refusal or reserve the signed message ID",
+            "connection failure is not sender-visible proof of non-execution"
+          ]
+        },
+        {
+          "event": "An already accepted exchange later loses route assurance",
+          "expect": [
+            "hold protected traffic and report delivery uncertainty",
+            "do not redirect it to X"
+          ]
+        },
+        {
+          "event": "The legitimate signer later delivers identical S on an assured authorized route with current admission conditions satisfied",
+          "expect": [
+            "earlier unassured delivery created no poisoned disposition",
+            "process according to normal first-seen message rules"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "authentication retention cannot be silently evicted",
+      "steps": [
+        {
+          "event": "A has a valid scope but cannot retain the authentication and disposition state needed to accept P",
+          "expect": [
+            "busy before acceptance",
+            "no claim of responsibility that cannot be retained"
+          ]
+        },
+        {
+          "event": "While P is retained, infrastructure considers evicting its required basis to enforce resource limits",
+          "expect": [
+            "do not selectively clear the record while claiming the scope remains live",
+            "retain the required state or genuinely retire the defined scope before discarding it"
+          ]
+        },
+        {
+          "event": "A detects loss of previously accepted state under keel.provisioned-context.v1",
+          "expect": [
+            "invalidate the local guard before any replacement state or further admission",
+            "close the connection and disable old-scope conversation traffic",
+            "do not claim retained continuity or invent first-seen expiry exceptions"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a terminal semantic refusal stays terminal after the condition changes",
+      "steps": [
+        {
+          "event": "Currently authenticated request S names an unsupported operation on an assured route; receiver retains terminal refusal in S's proper identity/context scope",
+          "expect": [
+            "unsupported",
+            "no work accepted"
+          ]
+        },
+        {
+          "event": "The receiver later adds that operation and receives exact S again while ordinary admission succeeds",
+          "expect": [
+            "repeat established minimal unsupported disposition",
+            "no new execution",
+            "a new attempt requires a new signed message ID"
+          ]
+        },
+        {
+          "event": "An unauthenticated frame or busy response is encountered",
+          "expect": [
+            "does not create a terminal disposition for S or reserve another principal's ID"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an exact expired accepted request receives only a fresh minimal acknowledgement",
+      "steps": [
+        {
+          "event": "A retains accepted request S's exact compact bytes, trusted successful authentication and scoped disposition; S's credential and its original acknowledgement's credential later expire",
+          "expect": [
+            "ordinary expiry does not erase the earlier acceptance",
+            "retained state creates no new action authority"
+          ]
+        },
+        {
+          "event": "Identical S arrives within retained context on an independently assured recipient route with current disclosure authorization",
+          "expect": [
+            "confirm full compact-byte equality and the retained profile, principal, recipient and context scope",
+            "return a new minimal ack signed with currently admissible response credentials and correlated to S",
+            "do not replay the expired old acknowledgement or return taken, result, description, evidence, detail, metadata or application data",
+            "do not execute, reopen a turn, advance an approval or issue a second closure transition"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an exact expired terminally refused request preserves its old refusal",
+      "steps": [
+        {
+          "event": "A retains an authenticated terminal unsupported refusal for S; S's credential expires and A later offers the operation",
+          "expect": [
+            "S remains terminally refused within its retained scope"
+          ]
+        },
+        {
+          "event": "Exact S is retried on an independently assured route with current disclosure authorization",
+          "expect": [
+            "return a new currently signed minimal refusal with the established unsupported reason and correlation to S",
+            "omit old detail, evidence, metadata and application data",
+            "do not accept S as a new operation or overwrite the retained refusal",
+            "a new attempt requires a fresh signed message ID and ordinary current admission"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an expired duplicate of an accepted decision remains accepted after the deadline",
+      "steps": [
+        {
+          "event": "O accepted D for pending P before P's deadline and retained D, P and their decided disposition; the deadline and D's credential expiry are now past",
+          "expect": [
+            "P remains decided under its originally accepted decision",
+            "later expiry does not replace the terminal disposition"
+          ]
+        },
+        {
+          "event": "Exact D arrives again on an independently assured route with current disclosure authorization",
+          "expect": [
+            "return only a fresh currently signed minimal ack for the established acceptance",
+            "do not return closed merely because the approval deadline is now past",
+            "do not accept another decision, confer another grant use or repeat the owner closure transition"
+          ]
+        },
+        {
+          "event": "A different currently admissible decision names terminal P",
+          "expect": [
+            "apply ordinary P03 rules and refuse as closed",
+            "preserve P's original accepted decision"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "exact expired acknowledgement and refusal controls do not create response loops",
+      "steps": [
+        {
+          "event": "A retains a previously handled ack K and later receives identical K after K's credential expires",
+          "expect": [
+            "ignore the repeated control without another delivery-state transition",
+            "do not acknowledge an acknowledgement or emit a duplicate-response refusal"
+          ]
+        },
+        {
+          "event": "A retains a previously handled control refusal F and later receives identical F after its credential expires",
+          "expect": [
+            "ignore the repeated control without applying its disposition again",
+            "do not acknowledge or answer the refusal",
+            "do not confuse a received refusal control with the retained refusal disposition of a request"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior busy is not an expired-retry disposition",
+      "steps": [
+        {
+          "event": "A authenticated S but returned busy without accepting S or retaining a terminal semantic refusal",
+          "expect": [
+            "successful authentication alone supplies no accepted or terminal disposition"
+          ]
+        },
+        {
+          "event": "Exact S arrives after its credential expires, even though A now has capacity and remembers the prior busy attempt",
+          "expect": [
+            "do not use the retained-disposition exception",
+            "apply ordinary current admission and return certificate-expired",
+            "do not execute S or invent prior acceptance"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an unassured expired-retry route reveals no retained disposition",
+      "steps": [
+        {
+          "event": "X presents an expired exact frame on a route not independently assured for its signed response recipient; consider retained accepted, retained terminally refused and no eligible retained-disposition states",
+          "expect": [
+            "use the same generic WebSocket rejection with code 1008 for these cases",
+            "send no ack, core refusal, close reason or application message exposing acceptance, refusal, absence of a record or the historical refusal reason",
+            "do not disclose cached, queued or new protected content",
+            "do not reserve the signed ID, overwrite its disposition or register X's route for its signer"
+          ]
+        },
+        {
+          "event": "The original signer later retries the same bytes on an independently assured route with current disclosure authorization",
+          "expect": [
+            "the earlier rejected delivery did not poison or change retained state",
+            "a retained accepted or terminally refused request may receive only its fresh minimal disposition control",
+            "a frame with no eligible retained disposition still requires ordinary current admission"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "route assurance without current disclosure authorization reveals no disposition",
+      "steps": [
+        {
+          "event": "An independently assured route presents an expired frame, but current policy does not permit disclosure of its disposition; consider retained accepted, retained refused and no eligible record states",
+          "expect": [
+            "use the same generic WebSocket rejection with code 1008",
+            "do not return an ack, prior refusal reason, not-authorized core status, record-existence hint or protected content",
+            "preserve any previous disposition without creating acceptance or a terminal semantic refusal for this delivery"
+          ]
+        },
+        {
+          "event": "Current disclosure permission is later restored while the exact trusted record remains retained",
+          "expect": [
+            "authorized minimal disposition reporting may resume under the exact-retry rule",
+            "the earlier disclosure denial did not undo acceptance or authorize a new action"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "current action denial does not rewrite earlier acceptance or require its disclosure",
+      "steps": [
+        {
+          "event": "A retains accepted S but policy now denies new performance of its action; disclosure of S's prior disposition remains authorized on the assured route",
+          "expect": [
+            "exact expired S may receive a fresh minimal ack reporting only its prior acceptance",
+            "do not perform a new action or claim that an effect occurred",
+            "current policy governs any still-pending effect or separately requested grant use"
+          ]
+        },
+        {
+          "event": "The caller sends a new currently authenticated request for that action under a new ID",
+          "expect": [
+            "apply current action authorization and refuse as not-authorized",
+            "S's earlier acceptance is not a permission cache for the new request"
+          ]
+        },
+        {
+          "event": "Policy also denies disclosure of S's prior disposition",
+          "expect": [
+            "use generic WebSocket rejection with code 1008 for the expired retry",
+            "do not report the retained acceptance or alter it"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "altered bytes cannot borrow the expiry exception from a known ID",
+      "steps": [
+        {
+          "event": "A retains exact accepted S; a frame claims the same principal, context and ID but changes a signed part and carries an expired credential",
+          "expect": [
+            "no exact-byte match and no retained-authentication exception",
+            "apply current verification order rather than trusting the claimed principal or ID",
+            "certificate-expired wins if it is the first ordinary verification failure",
+            "do not disclose or overwrite S's disposition on the basis of the claimed ID"
+          ]
+        },
+        {
+          "event": "Different signed bytes for S's same scope and ID instead pass all current authentication checks",
+          "expect": [
+            "refuse as malformed for conflicting signed-object reuse",
+            "preserve S's original bytes and disposition"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a frame-index hit is confirmed by full bytes and trusted scope",
+      "steps": [
+        {
+          "event": "An index lookup returns a retained candidate for incoming frame X because of a hash/index collision or candidate mismatch; the complete compact byte strings differ",
+          "expect": [
+            "reject the candidate as an exact match after full-byte comparison",
+            "do not return its prior disposition or use its authentication basis for X",
+            "subject X to ordinary current admission if no other exact eligible record matches"
+          ]
+        },
+        {
+          "event": "Bytes match an artifact held only under another recipient, profile or lost context, without this receiver's eligible live disposition",
+          "expect": [
+            "do not transplant its authentication or disposition into the receiving scope",
+            "an index hit does not establish context continuity or recipient authority"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "inspection or issuance knowledge is not an accepted incoming disposition",
+      "steps": [
+        {
+          "event": "A previously authenticated signed P only as attached evidence, without accepting it as an incoming approval exchange; O also retains its own issuance record",
+          "expect": [
+            "neither evidence inspection nor O's issuance record proves A accepted P",
+            "do not create pending approval state or an acceptance disposition from those facts"
+          ]
+        },
+        {
+          "event": "P first arrives for request handling after its credential expires",
+          "expect": [
+            "the retained-disposition exception does not apply",
+            "ordinary current admission returns certificate-expired",
+            "do not emit an acknowledgement asserting prior acceptance or create a new approval"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a minimal retained-disposition response still needs current signing credentials",
+      "steps": [
+        {
+          "event": "An exact expired accepted request qualifies for disposition reporting on an assured authorized route, but the receiver has no currently admissible response-signing credential",
+          "expect": [
+            "do not replay an expired cached acknowledgement or send an unsigned substitute",
+            "preserve the earlier acceptance without executing again",
+            "report local delivery uncertainty; the peer cannot infer a new acknowledgement from silence"
+          ]
+        },
+        {
+          "event": "The receiver obtains a current credential and exact S is retried while its record remains retained and disclosure remains authorized",
+          "expect": [
+            "return only the freshly signed minimal disposition permitted by the rule"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an expired accepted describe retry confirms only prior acceptance",
+      "steps": [
+        {
+          "event": "A retains an accepted actor-level describe request S within its required duplicate window; identical S is retried after S's credential expires on an assured authorized route",
+          "expect": [
+            "return only a fresh minimal actor-level ack correlated to S under the expired-retry exception",
+            "do not replay or generate a description through this exception",
+            "the ack establishes prior acceptance, not delivery of a description or permission to inspect current capabilities"
+          ]
+        },
+        {
+          "event": "The requester needs a current description",
+          "expect": [
+            "use a new currently admissible describe request under the ordinary authorization and response-audience rules"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "response-audience preflight hides whether an expired frame is retained",
+      "steps": [
+        {
+          "event": "An unassured route presents expired E1 with an exact retained acceptance and expired E2 with no eligible record; both are otherwise well-framed",
+          "expect": [
+            "apply the independent route and current disclosure preflight before any state-dependent or expiry diagnostic is returned",
+            "both deliveries close WebSocket with code 1008 and no informative close reason or core message",
+            "do not return ack for E1 or certificate-expired for E2",
+            "neither delivery changes a retained disposition or reserves an ID",
+            "equal permitted outputs do not constitute a claim of constant-time processing"
+          ]
+        },
+        {
+          "event": "Repeat the comparison on an independently assured route whose current policy denies disposition disclosure, and with E1 instead terminally refused or either frame still within credential validity",
+          "expect": [
+            "the same generic code 1008 rejection precedes any acceptance, prior-refusal, expiry or record-existence feedback",
+            "known versus unknown and expired versus currently admissible frames cannot select different core status responses before the preflight permits disclosure"
+          ]
+        },
+        {
+          "event": "Bounded parsing exposes untrusted principal/context selectors before authentication, or a frame claims another principal's already assured route policy",
+          "expect": [
+            "selectors may only select or narrow an existing independently established policy; they confer no identity, route ownership or disclosure permission",
+            "require the trusted retained scope or subsequently authenticated scope to agree with the policy used for the route",
+            "if assurance cannot be established, use the same generic binding rejection without consulting a historical disposition to grant access"
+          ]
+        },
+        {
+          "event": "The route is independently assured and its current policy permits the applicable diagnostic; a first-seen malformed frame arrives",
+          "expect": [
+            "ordinary bounded framing and verification diagnostics remain available under the permitted disclosure policy",
+            "the diagnostic does not use an unauthenticated claimed ID to reveal a stored disposition"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "actor credentials require authority over the governed actor name",
+      "steps": [
+        {
+          "event": "The receiver's governed name assignment identifies actor:release; its explicit policy permits IssuerA to certify that actor and recognizes IssuerA's verification key",
+          "expect": [
+            "an otherwise valid current IssuerA credential for actor:release passes the issuer-name authority check",
+            "the authenticated principal remains actor:release, not an issuer-qualified replacement",
+            "operation authorization still applies independently"
+          ]
+        },
+        {
+          "event": "IssuerA signs an otherwise valid credential for actor:deployment outside its permitted naming authority",
+          "expect": [
+            "certificate-invalid at the certificate validation step",
+            "a trusted signing key does not authorize IssuerA to certify every actor name"
+          ]
+        },
+        {
+          "event": "IssuerA is authorized for actor:release but has no authority for actor:Release or party:release",
+          "expect": [
+            "credentials for those other full strings fail the naming-authority check as certificate-invalid",
+            "compare kind and case exactly; spelling similarity supplies no additional naming scope"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "party credentials require authority over the governed party name",
+      "steps": [
+        {
+          "event": "The receiver recognizes party:owner as a governed participant and explicitly permits IssuerH to certify that party with its configured key",
+          "expect": [
+            "an otherwise valid current credential passes the issuer-name authority check for party:owner",
+            "the principal is party:owner; no mandatory network or issuer prefix is added",
+            "the credential alone grants no actor operation or approval authority"
+          ]
+        },
+        {
+          "event": "IssuerH presents a valid signature over a credential for party:other that it is not authorized to certify",
+          "expect": [
+            "certificate-invalid",
+            "party identities have the same explicit naming-authority requirement as actor identities"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "two trusted issuers cannot independently capture the same governed subject",
+      "steps": [
+        {
+          "event": "IssuerA and IssuerB have trusted verification keys; only IssuerA is authorized over actor:release, while IssuerB has authority over other names",
+          "expect": [
+            "IssuerA's otherwise valid actor:release credential passes this check",
+            "IssuerB's otherwise valid credential with the same sub actor:release fails as certificate-invalid",
+            "do not inherit actor:release permissions, retained contexts or history through IssuerB's unauthorized assertion"
+          ]
+        },
+        {
+          "event": "IssuerB claims that an unrelated network independently assigned actor:release to another participant",
+          "expect": [
+            "the remote assignment does not override the receiver's governed identity mapping",
+            "reject the unauthorized naming claim instead of silently merging participants or treating issuer-qualified identities as the core principal model"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "two issuers may deliberately certify the same governed participant",
+      "steps": [
+        {
+          "event": "Governance deliberately authorizes IssuerA and IssuerB to certify the same participant actor:release, with their respective allowed verification keys",
+          "expect": [
+            "otherwise valid current credentials from either issuer can authenticate that same actor:release principal",
+            "retain the actual issuer, actual verifying issuer key and certified message key in each authentication basis",
+            "the overlap is an explicit identity mapping, not two unrelated actors acquiring one name"
+          ]
+        },
+        {
+          "event": "Messages certified by the two allowed issuers use the same principal and retained context",
+          "expect": [
+            "ordinary current action authorization and message identity rules apply",
+            "changing issuer does not create a fresh duplicate namespace or permit conflicting reuse of the same scoped message ID"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "adding a trust anchor grants no automatic naming authority",
+      "steps": [
+        {
+          "event": "An operator adds IssuerC's authentic verification key to trust configuration without granting IssuerC authority over actor:release or party:owner",
+          "expect": [
+            "first-seen credentials from IssuerC for either existing name fail as certificate-invalid",
+            "verification-key trust is not a wildcard naming grant",
+            "existing participants' contexts and permissions are unchanged"
+          ]
+        },
+        {
+          "event": "Governance subsequently grants IssuerC explicit authority over the existing party:owner identity and no actor names",
+          "expect": [
+            "an otherwise valid current party:owner credential can pass the naming check under the new policy",
+            "actor:release remains outside IssuerC's authority",
+            "the naming change does not itself authorize a party operation or confer network membership"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "key and issuer rotation preserve a name only through deliberate authority mapping",
+      "steps": [
+        {
+          "event": "Governance retains the participant actor:release while explicitly replacing or overlapping its issuer verification keys and allowing a current credential for its rotated message key",
+          "expect": [
+            "the principal name can remain actor:release under the deliberate mapping",
+            "new frames require currently permitted issuer keys, naming authority and certified message-key binding",
+            "retained old messages keep their original bytes, issuer, actual verifying issuer key, certified message key and verification basis"
+          ]
+        },
+        {
+          "event": "A different issuer attempts to certify actor:release merely because its key is trusted or it claims to replace the old issuer",
+          "expect": [
+            "certificate-invalid unless governance explicitly grants that issuer authority over the same participant",
+            "a credential or sender assertion cannot perform the governance transition itself"
+          ]
+        },
+        {
+          "event": "The replacement issuer is deliberately authorized over that same identity",
+          "expect": [
+            "otherwise valid current new credentials can authenticate actor:release without renaming it",
+            "issuing a replacement does not by itself revoke old credentials; current issuer/name/key policy and expiry determine their new-message admissibility"
+          ]
+        },
+        {
+          "event": "Two keys share the configured issuer name IssuerA, but only key K1 is authorized for actor:release; a credential for that name verifies under K2",
+          "expect": [
+            "certificate-invalid even though both keys are trusted under IssuerA",
+            "do not combine K2's valid signature with K1's naming authority",
+            "the allowed association is the actual issuer name, verifying issuer key and subject together"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "network membership and operation permission do not define principal identity",
+      "steps": [
+        {
+          "event": "The same governed actor:release or party:owner participates in two networks that deliberately recognize its identity but have different admission and operation policies",
+          "expect": [
+            "the principal need not acquire a mandatory network-prefixed name",
+            "recognition of identity does not automatically confer membership or operation permission in either network",
+            "each receiver applies its current membership and resource policy separately from credential naming checks"
+          ]
+        },
+        {
+          "event": "One network removes that participant's permission to perform a new application action, while its identity credential, profile membership, provisioned scope and disclosure authorization remain valid",
+          "expect": [
+            "deny the affected new action as not-authorized",
+            "do not silently rename the participant, erase prior effects or transfer its identity to another participant"
+          ]
+        },
+        {
+          "event": "Separately, membership or authorization to use a provisioned scope is withdrawn, or current policy denies disposition disclosure",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "retire the local guard when its provisioned authorization is lost",
+            "withholding feedback does not erase principal identity or retained historical facts"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a genuine principal rename does not merge permissions or retained history",
+      "steps": [
+        {
+          "event": "Governance assigns actor:publisher as a new principal name where the participant previously used actor:release",
+          "expect": [
+            "new messages authenticate under their actual certified name",
+            "core does not infer aliasing or equality merely from the same key, issuer, operator or asserted rename",
+            "old signed frames remain attributed and addressed under their original names"
+          ]
+        },
+        {
+          "event": "actor:publisher presents an old message ID, approval reference or history location belonging to actor:release",
+          "expect": [
+            "do not silently transplant prior permissions, grant-holder identity, retained contexts, duplicate dispositions or history access",
+            "any authorized migration or new access follows an explicit applicable policy without rewriting old signed bytes or inventing prior receipt",
+            "a new name alone cannot accept a decision for an old principal's lost or unowned approval"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reused spelling cannot repurpose a governed principal or cross namespace isolation",
+      "steps": [
+        {
+          "event": "An operator retires a participant and attempts to assign actor:release to a different participant while continuing to interpret it as the same governed principal",
+          "expect": [
+            "do not repurpose the same governed principal or treat spelling as proof of participant continuity",
+            "ending the old conversation or clearing duplicate state does not make its old permissions, signed evidence or history belong to the replacement",
+            "use a distinct governed name or a genuinely separate isolated namespace instead of inheriting the old identity"
+          ]
+        },
+        {
+          "event": "A separate namespace legitimately uses actor:release for a different participant under an independently established binding/deployment context",
+          "expect": [
+            "scope its trust, issuer/key naming authority, principal resolution, authorization, pending exchanges, grants, duplicate records and historical interpretation independently",
+            "no namespace discriminator or mandatory prefix is inferred in the core wire name",
+            "an untrusted sender claim or metadata cannot switch the namespace selected by that independently established context"
+          ]
+        },
+        {
+          "event": "That different participant presents captured old-namespace approval or request bytes on a route assured only for the separate namespace's actor:release",
+          "expect": [
+            "the route is not thereby authorized for the retained original participant/context",
+            "do not use old-namespace trust or authentication records to admit the frame or disclose its old disposition",
+            "use generic binding rejection with no retained-status disclosure when the old context's current audience authorization is absent",
+            "any first-seen admission remains confined to the independently selected namespace's own issuer/key/name and authorization policy"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "issuer-policy changes preserve authentication facts without caching current authority",
+      "steps": [
+        {
+          "event": "O validly issues approval P under then-authorized IssuerA, A authenticates it, and both retain their proper basis; governance later removes IssuerA's naming authority for new admissions while preserving the governed participants",
+          "expect": [
+            "retain the original issuance and receipt facts with their actual issuer, actual verifying issuer key, certified message key and policy basis",
+            "the policy change does not rewrite P's signed bytes or automatically establish that it was never issued or received",
+            "first-seen new frames relying on the now-unauthorized issuer/name binding fail as certificate-invalid"
+          ]
+        },
+        {
+          "event": "Current trust and action policy still permits the pending approval to continue; before P's deadline, A sends D with currently admissible naming authority and current decision permission",
+          "expect": [
+            "apply P04 using O's retained exact P and valid original issuance basis",
+            "accept the valid bound decision without requiring P to be re-signed or its old certificate to regain current admissibility",
+            "do not use P's old authentication to admit any fresh frame from IssuerA"
+          ]
+        },
+        {
+          "event": "Current policy instead denies a new decision, further grant use or disclosure of a prior disposition",
+          "expect": [
+            "enforce the applicable current denial without inventing a different historical acceptance or effect",
+            "a retained exact-copy response still requires independent original-recipient route assurance and current disclosure authorization",
+            "denied disclosure uses the uniform generic WebSocket 1008 rejection, with no known-versus-unknown status leak"
+          ]
+        }
+      ]
+    }
+  ]
+}

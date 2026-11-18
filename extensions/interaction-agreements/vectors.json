@@ -1,0 +1,441 @@
+{
+  "description": "Abstract conformance traces for optional keel.provisioned-agreement.v1 layered on core/1 and keel.provisioned-context.v1; not executed runtime conformance. A is the recorded actor, R the requester, C a fresh conversation UUID, W the actual authenticated WebSocket, and G an authority-scoped application agreement. Different symbols denote different scoped identities. Unless a case says otherwise, messages satisfy ordinary authentication, structure, addressing, current action and audience authorization, and both profiles are explicitly established. Setup events are trusted local configuration obligations, not a public wire format. Generic scope rejection means WebSocket1008 on the original connection if open, otherwise discard under its captured retired guard, without identifying details or a core disposition.",
+  "cases": [
+    {
+      "name": "core continuity alone establishes no application agreement",
+      "steps": [
+        {
+          "event": "A and R establish keel.provisioned-context.v1 for fresh C on W without selecting the agreement profile"
+        },
+        {
+          "event": "R invokes an unnamed interaction relying only on C having a live guard",
+          "expect": [
+            "C establishes core context scope, not explanation-only meaning or a historical operation contract",
+            "do not claim keel.provisioned-agreement.v1 or silently infer it from a cached description"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cached tool preparation retains the intended agreement through setup",
+      "steps": [
+        {
+          "event": "R offers its model tool T mapped unambiguously to actor A, operation launch and trusted agreement G1"
+        },
+        {
+          "event": "While the model selects T and prepares arguments, A advertises G2"
+        },
+        {
+          "event": "The adapter requests provisioned-agreement setup",
+          "expect": [
+            "retain G1 as the intended agreement",
+            "establish G1 only if A can still honor it; otherwise report locally that setup was not established",
+            "do not silently bind the prepared selection to G2",
+            "no invocation or core turn is created by setup"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "same label without common authority and meaning does not establish agreement",
+      "steps": [
+        {
+          "event": "R resolves label launch-v1 under owner X while A resolves the same label under owner Y or to a different promised behavior"
+        },
+        {
+          "event": "The facility validates setup",
+          "expect": [
+            "do not report an established agreement",
+            "equal labels do not prove common authority, interpretation or compatibility",
+            "do not enable either sender"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "host may honor intended agreement despite a changed advertisement",
+      "steps": [
+        {
+          "event": "R intends G1; A now advertises a different declaration but its selected implementation can honor the full G1 promise"
+        },
+        {
+          "event": "Both endpoints independently establish G1 and the host commits to enforce it",
+          "expect": [
+            "setup may succeed for G1",
+            "no requirement for byte-identical descriptions, same model or unchanged code",
+            "do not infer semantic compatibility from schema equality alone"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "both endpoints must authorize the facility",
+      "steps": [
+        {
+          "event": "Facility F is authorized by A but not by R"
+        },
+        {
+          "event": "F attempts to install G1 and C at both endpoints",
+          "expect": [
+            "R rejects setup",
+            "A authority does not authorize configuring R",
+            "no conversation traffic may be enabled under incomplete setup"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "agreement readiness participates in bilateral activation",
+      "steps": [
+        {
+          "event": "Both continuity contexts and guards are ready, but R has not resolved the intended agreement"
+        },
+        {
+          "event": "The facility attempts activation",
+          "expect": [
+            "neither endpoint may send or admit conversation traffic",
+            "continuity readiness does not substitute for agreement readiness"
+          ]
+        },
+        {
+          "event": "R resolves the same intended G1 under the trusted authority and both endpoints report complete readiness"
+        },
+        {
+          "event": "The facility activates the first paired guard and agreement association",
+          "expect": [
+            "keep both senders disabled until both pairs are active"
+          ]
+        },
+        {
+          "event": "The facility activates the second pair",
+          "expect": [
+            "the facility may now enable senders",
+            "setup has opened no request, turn or approval"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "profile cannot be added retroactively to an active context",
+      "steps": [
+        {
+          "event": "Core conversation C already contains admitted requests without this profile"
+        },
+        {
+          "event": "A facility attempts to attach G1 and claim it governed earlier work",
+          "expect": [
+            "do not establish this profile in place on C",
+            "a new profile association requires fresh C, fresh connection and ordered setup",
+            "preserve historical admissions without inventing an earlier application promise"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unnamed interaction retains explanation-only promise",
+      "steps": [
+        {
+          "event": "Both endpoints establish G-explain for C; it permits explanation and forbids domain mutations from unnamed chat"
+        },
+        {
+          "event": "A admits a valid unnamed say S in C",
+          "expect": [
+            "interpret S under G-explain and retain its selected turn contract",
+            "do not substitute revision-producing behavior merely because the current deployment supports it"
+          ]
+        },
+        {
+          "event": "A receives another valid unnamed opening after the first turn closes",
+          "expect": [
+            "G-explain still governs the interaction",
+            "separate turns do not end or replace the conversation agreement"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "implementation may change compatibly while meaning remains fixed",
+      "steps": [
+        {
+          "event": "A has accepted S under G1 with a selected output and contribution contract"
+        },
+        {
+          "event": "The host changes its model and implementation while continuing to satisfy G1 and the retained turn contract",
+          "expect": [
+            "the profile permits the change",
+            "do not require deterministic output or pin a model version"
+          ]
+        },
+        {
+          "event": "A receives a contribution to S",
+          "expect": [
+            "interpret it under the retained contribution contract",
+            "do not derive new amendment rules from the latest model or description"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "agreement does not force unavailable operations or authorize work",
+      "steps": [
+        {
+          "event": "G1 is active and promises interpretation without promising continued availability; operation launch is unavailable for new requests"
+        },
+        {
+          "event": "R sends a fresh launch request",
+          "expect": [
+            "ordinary unsupported refusal applies to the unavailable operation",
+            "an agreement reference does not make the operation available"
+          ]
+        },
+        {
+          "event": "In a separate attempt the operation is available but current action authorization is absent",
+          "expect": [
+            "apply the ordinary authorization outcome",
+            "agreement establishment is not a permission grant"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "declared input failures retain their core meaning",
+      "steps": [
+        {
+          "event": "G1 is active and its known operation launch requires data matching its declared input"
+        },
+        {
+          "event": "R submits invalid input under that operation",
+          "expect": [
+            "ordinary malformed refusal applies before turn opening",
+            "do not invent a contract-mismatch reason or relabel arbitrary agreement failure as malformed"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "exact accepted retry resolves retained disposition before fresh offering checks",
+      "steps": [
+        {
+          "event": "A accepted signed S under active G1 and retained its eligible disposition; its signing certificate subsequently expires normally"
+        },
+        {
+          "event": "A no longer offers the named operation for fresh requests but preserves G1 applicability and required context state"
+        },
+        {
+          "event": "The exact S arrives over the active independently authorized scope",
+          "expect": [
+            "return the core fresh minimal acknowledgement of prior acceptance",
+            "do not re-execute or revalidate S against current operation availability",
+            "do not return sensitive cached result data or infer new authority"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "terminal refusal cannot become acceptance after offering changes",
+      "steps": [
+        {
+          "event": "Under active G1, A terminally refused S and retained the eligible disposition"
+        },
+        {
+          "event": "The exact S is retried after a compatible availability change would allow a new request",
+          "expect": [
+            "return the retained terminal refusal under core duplicate rules",
+            "do not reinterpret S as fresh or convert its refusal to busy",
+            "a new request needs its own identity and applicable authorization"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "incompatible replacement requires actual retirement and fresh association",
+      "steps": [
+        {
+          "event": "G-explain is active in C1 on W1; the host wants unnamed chat to mutate revisions under G-edit"
+        },
+        {
+          "event": "The host announces G-edit",
+          "expect": [
+            "announcement alone cannot change C1 behavior",
+            "continue honoring G-explain or retire the paired guard and agreement before incompatible admission"
+          ]
+        },
+        {
+          "event": "The host retires C1 and deliberately establishes G-edit for fresh C2 on fresh W2",
+          "expect": [
+            "C2 needs complete bilateral setup for the requester intended G-edit",
+            "do not reuse C1 or bind old signed messages to G-edit",
+            "fresh setup grants no authority to repeat uncertain C1 work"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "agreement state loss retires the paired continuity guard",
+      "steps": [
+        {
+          "event": "C is active and its core facts remain present, but the host loses the required G1 association or ability to enforce it"
+        },
+        {
+          "event": "The endpoint detects that loss",
+          "expect": [
+            "retire agreement admission and the paired continuity guard before admitting more work",
+            "close the actual original connection and disable outgoing conversation traffic",
+            "a surviving socket or core context is insufficient"
+          ]
+        },
+        {
+          "event": "An otherwise valid frame arrives after retirement",
+          "expect": [
+            "generic original-connection 1008 if open, otherwise discard under its retired guard",
+            "no core disposition, presented ID reservation or retained-history distinction",
+            "do not call this an ordinary application mismatch while keeping C active"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "queued old frame cannot execute or close replacement",
+      "steps": [
+        {
+          "event": "Frame S for C1 is queued with its original guard and G1 association; C1 is retired and C2 with G2 is established on W2"
+        },
+        {
+          "event": "The queued S callback runs",
+          "expect": [
+            "check its captured retired C1 guard and reject or discard there",
+            "do not look up G2 by a reused logical endpoint name",
+            "do not execute S under G2 or close W2",
+            "do not rewrite or re-sign S for C2"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "admission and retirement race preserves observed facts",
+      "steps": [
+        {
+          "event": "Valid S races with local retirement of the paired C/G1 association"
+        },
+        {
+          "event": "Semantic admission wins the ordering",
+          "expect": [
+            "S was admitted under G1 and its selected turn contract",
+            "later retirement cannot erase its disposition or effects"
+          ]
+        },
+        {
+          "event": "In an independent run retirement wins the ordering",
+          "expect": [
+            "do not newly admit S",
+            "apply generic retired-scope binding handling without claiming S never executed elsewhere or earlier"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "remote retirement detection is not instantaneous",
+      "steps": [
+        {
+          "event": "A retires its local C/G1 scope; R has not yet observed connection loss and still has its valid old guard and agreement"
+        },
+        {
+          "event": "An in-flight A notification reaches R before R observes retirement",
+          "expect": [
+            "R may admit it under its still-valid old C/G1 association using ordinary core rules",
+            "never admit it into replacement state",
+            "do not claim instantaneous remote failure detection"
+          ]
+        },
+        {
+          "event": "R observes the connection loss",
+          "expect": [
+            "retire its local agreement and continuity scope",
+            "no reconnect or restoration under this profile identity"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "retired scope does not become a history oracle",
+      "steps": [
+        {
+          "event": "A retained an eligible acceptance of S under C/G1; C is then retired"
+        },
+        {
+          "event": "An exact S arrives on the retired connection or is presented to a new C2 connection",
+          "expect": [
+            "apply original-guard retirement or wrong-scope generic binding handling before history lookup",
+            "do not return the retained disposition through this retired scope",
+            "preserved facts remain available only through another explicitly authorized contract"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "retirement preserves uncertainty and independent application lifetimes",
+      "steps": [
+        {
+          "event": "S was accepted and an application job may have started; approval Q is independently outstanding"
+        },
+        {
+          "event": "The C/G1 association is retired before R sees a result",
+          "expect": [
+            "do not manufacture a terminal result, roll back effects, cancel the job or withdraw Q",
+            "preserve known acceptance and unresolved outcome wherever records remain"
+          ]
+        },
+        {
+          "event": "R establishes fresh C2 with G2 and creates new message IDs",
+          "expect": [
+            "fresh identities and agreement provide no automatic authority to repeat uncertain work",
+            "reconciliation or newly authorized application action follows its own contract"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "describe and metadata cannot establish or replace the agreement",
+      "steps": [
+        {
+          "event": "C/G1 is active and R receives a current non-conversation description advertising G2-like behavior"
+        },
+        {
+          "event": "R sends metadata claiming expected_contract G2",
+          "expect": [
+            "ordinary metadata is still ignorable under core",
+            "neither that metadata nor the description changes G1 or negotiates a required condition",
+            "transparent per-invocation expected-contract support remains outside this profile"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "failed setup and later retirement are distinct observations",
+      "steps": [
+        {
+          "event": "Before activation a required setup input is inconsistent"
+        },
+        {
+          "event": "The facility reports this association was not established",
+          "expect": [
+            "no conversation work was admitted by this attempted setup",
+            "no new core refusal is sent",
+            "authorized setup diagnostics use the trusted control path"
+          ]
+        },
+        {
+          "event": "In a separate attempt setup succeeds and conversation traffic is enabled"
+        },
+        {
+          "event": "The connection then fails before the requester knows whether its request was accepted",
+          "expect": [
+            "retire the applicable scope",
+            "do not report that failed setup proves no earlier admission",
+            "preserve outcome uncertainty"
+          ]
+        }
+      ]
+    }
+  ]
+}

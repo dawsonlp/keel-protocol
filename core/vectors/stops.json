@@ -1,0 +1,197 @@
+{
+  "description": "Required core stop behavior. Except where stated otherwise, messages are verified, authorized, structurally valid, and processed within a retained live context. S and N identify fresh opening say messages; T identifies a stop message whose required turn field names its intended opening request. These abstract traces require semantic checking and do not establish implementation conformance, restart durability, or application cancellation guarantees. Unless a step states otherwise, conversation traffic uses an explicitly selected applicable continuity profile with valid authorized guards and retained required context at admission; stale traffic from an ended scope is rejected at that boundary before ordinary correlation or disposition handling.",
+  "cases": [
+    {
+      "name": "stop closes only its identified open turn",
+      "steps": [
+        { "event": "S is open with unanswered question Q; independent approval A is pending in the same conversation" },
+        { "event": "stop T with turn S is accepted", "expect": ["ack T", "one result naming S with status stopped", "Q closes as withdrawn", "A is not implicitly closed by stopping S", "no further advancement of S"] },
+        { "event": "an obsolete internal computation for S completes", "expect": ["no second terminal result for S", "no success replacing its stopped result"] }
+      ]
+    },
+    {
+      "name": "a delayed stop cannot close a newer turn",
+      "steps": [
+        { "event": "S is open; the requester sends stop T with turn S; transport delays T" },
+        { "event": "S completes with result R; the requester explicitly releases T's unconfirmed sending slot; N opens" },
+        { "event": "T arrives", "expect": ["refusal nothing-to-stop for T", "N remains open", "R remains S's sole terminal result"] }
+      ]
+    },
+    {
+      "name": "a duplicate accepted stop cannot close a newer turn",
+      "steps": [
+        { "event": "T with turn S is accepted; S closes with result R as stopped" },
+        { "event": "N opens after the relevant sending slots are released" },
+        { "event": "an identical copy of T arrives", "expect": ["duplicate acknowledgement for T", "no repeated handling of T", "N remains open", "no second result for S"] },
+        { "event": "a new stop U with turn S arrives", "expect": ["refusal nothing-to-stop for U", "N remains open"] }
+      ]
+    },
+    {
+      "name": "prospective suppression does not stop an unrelated open turn",
+      "steps": [
+        { "event": "N is open; fresh opening request S is delayed and unknown in this context" },
+        { "event": "T with turn S is accepted", "expect": ["ack T", "retain suppression for opening request S from this asker in this conversation", "N remains open", "no result for S because no turn S opened"] },
+        { "event": "valid fresh say S arrives without in_response_to", "expect": ["ack S", "taken for S as not-acted-on without turn", "no work starts for S", "N remains open"] }
+      ]
+    },
+    {
+      "name": "known non-opening targets are malformed",
+      "steps": [
+        { "event": "S is open; C is an admitted contribution; Q is S's question; R is the result of a different closed turn" },
+        { "event": "T names C in turn", "expect": ["refusal malformed for T", "no inferred retargeting from C to S", "S remains open"] },
+        { "event": "new stop U names Q in turn", "expect": ["refusal malformed for U", "Q remains open", "S remains open"] },
+        { "event": "new stop V names R in turn", "expect": ["refusal malformed for V", "no inferred retargeting from R to its turn", "S remains open"] }
+      ]
+    },
+    {
+      "name": "a known target from another context cannot be stopped here",
+      "steps": [
+        { "event": "N is open; the receiver knows that S is a fresh request from another asker or in another conversation" },
+        { "event": "otherwise authorized stop T addresses N's conversation with turn S", "expect": ["refusal malformed for T", "no effect on S or N", "no cross-conversation authority inferred from the reference"] }
+      ]
+    },
+    {
+      "name": "a known fresh request that did not open a turn has nothing to stop",
+      "steps": [
+        { "event": "N is open; fresh request S was accepted as not-acted-on" },
+        { "event": "T arrives with turn S", "expect": ["refusal nothing-to-stop for T", "N remains open", "S's established not-acted-on disposition is unchanged"] }
+      ]
+    },
+    {
+      "name": "a prospective target cannot suppress a later contribution",
+      "steps": [
+        { "event": "S is open and permits contributions; no message C is known in this context" },
+        { "event": "T with turn C is accepted", "expect": ["ack T", "prospective suppression is limited to a fresh opening request C", "S remains open"] },
+        { "event": "C arrives as a valid say with in_response_to S", "expect": ["normal contribution admission under S's contract", "ack C", "taken for C as added-to-turn with turn S", "no suppression of C as an opening request", "no implicit stop of S"] },
+        { "event": "new stop U with turn C arrives", "expect": ["refusal malformed for U because C is now known as a contribution", "S remains open"] }
+      ]
+    },
+    {
+      "name": "a suppression marker is not a turn or an opening message",
+      "steps": [
+        { "event": "T with turn S is accepted while S is unknown" },
+        { "event": "contribution C arrives with in_response_to S before opening request S", "expect": ["refusal unknown for C", "the suppression marker does not reconstruct S or establish its response contract"] },
+        { "event": "fresh opening request S arrives", "expect": ["ack S", "taken for S as not-acted-on", "no turn opens and no result is owed for S"] },
+        { "event": "new contribution D arrives with in_response_to S", "expect": ["refusal malformed for D because S did not open a turn", "no reopening or execution of S"] }
+      ]
+    },
+    {
+      "name": "stop acceptance precedes later contributions and answers",
+      "steps": [
+        { "event": "S is open with question Q; contribution C naming S and answer A naming Q are delayed" },
+        { "event": "T with turn S is accepted", "expect": ["ack T", "S closes as stopped", "Q closes as withdrawn"] },
+        { "event": "C and A arrive for the first time", "expect": ["refusal closed for C", "refusal closed for A", "neither starts new work nor joins another turn"] }
+      ]
+    },
+    {
+      "name": "an admitted contribution remains admitted when its turn is stopped",
+      "steps": [
+        { "event": "C targeting S is admitted as added-to-turn; its acknowledgement is lost" },
+        { "event": "T with turn S is accepted", "expect": ["ack T", "one stopped result for S accounting for its effective request", "no requirement to fulfill C after S is stopped"] },
+        { "event": "an identical copy of C arrives", "expect": ["normal duplicate acknowledgement", "retain C's original admission disposition", "no reapplication of C", "no reopening of S"] }
+      ]
+    },
+    {
+      "name": "stop may bypass an in-flight contribution or answer",
+      "steps": [
+        { "event": "S is open; the requester has unacknowledged say C, either a contribution targeting S or an answer targeting S's question" },
+        { "event": "the requester sends T with turn S", "expect": ["T may be in flight beside C", "at most one stop occupies the additional sending slot", "T has its own identity and retry state", "T targets S rather than C or the question"] },
+        { "event": "ack T arrives while C's disposition is still unknown", "expect": ["T is confirmed accepted", "C is not acknowledged or withdrawn by ack T", "C's sending slot remains held until its own disposition is known or it is explicitly released"] }
+      ]
+    },
+    {
+      "name": "local withdrawal is scoped to the intended turn",
+      "steps": [
+        { "event": "the sender has unsent contributions and answers known to belong to S, plus an unrelated queued fresh request N" },
+        { "event": "the sender chooses to stop S", "expect": ["withdraw unsent submissions known to belong to S", "retain unrelated queued request N", "already sent submissions retain their identities and delivery uncertainty", "local withdrawal does not prove remote cancellation"] },
+        { "event": "in a separate scenario the opening request S itself is still unsent when the sender withdraws S", "expect": ["withdraw S locally so it is never sent", "no remote stop is required to prevent this unsent request from starting"] }
+      ]
+    },
+    {
+      "name": "a stopped turn does not prove global quiescence or rollback",
+      "steps": [
+        { "event": "S has already initiated an external effect and a child actor's independent turn U" },
+        { "event": "T with turn S is accepted and the actor sends S's stopped result", "expect": ["the actor ceases advancing S", "S cannot emit a later success or another terminal result", "no claim that an already initiated external effect was undone", "no automatic cancellation or terminal result for U", "no promise that all descendants or external effects are quiescent"] }
+      ]
+    },
+    {
+      "name": "application cancellation uses its own declared contract",
+      "steps": [
+        { "event": "an earlier acceptance turn S returned application job J; J continues while another turn N is open" },
+        { "event": "T with turn S arrives", "expect": ["refusal nothing-to-stop for T", "no inference that job J was canceled", "N remains open"] },
+        { "event": "an actor offers an authorized cancel_job operation declaring its target, effects, and result; the requester invokes it for J in a separate conversation", "expect": ["the cancellation invocation has its own turn and response contract", "its acknowledgement alone does not establish completed cancellation", "its result is interpreted under the declared cancellation contract", "job identity and cancellation scope remain application concepts"] }
+      ]
+    },
+    {
+      "name": "stop does not determine what happened before context loss",
+      "steps": [
+        {
+          "event": "S may have executed in ended C1; properly established C2 has active guards but no S"
+        },
+        {
+          "event": "A separately authorized new stop T signed for C2 with turn S is accepted",
+          "expect": [
+            "ack T",
+            "prospective suppression applies only within retained C2",
+            "no reconstruction of C1 or its lost turn",
+            "no assertion that earlier work did not execute, was canceled or was undone"
+          ]
+        },
+        {
+          "event": "C2's required state is also lost under keel.provisioned-context.v1",
+          "expect": [
+            "invalidate its guard before further admission and close its connection",
+            "core requires no durable suppression across that loss",
+            "original C2 traffic is rejected by the retired guard or a fresh mismatching scope",
+            "same-scope retry needs an explicitly applicable stronger profile rather than a new connection alone"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an unauthorized stop establishes no suppression",
+      "steps": [
+        {
+          "event": "T with turn S is structurally valid and signed by the configured requester; its scope guard passes, but current action policy denies that requester authority to stop or suppress S",
+          "expect": [
+            "refusal not-authorized for T",
+            "no stop of an open S",
+            "no suppression if S is still unknown",
+            "no authority inferred from knowledge of S's identity"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "completion wins even when its result has not arrived",
+      "steps": [
+        { "event": "S completes with terminal result R; all delivery attempts for R are lost" },
+        { "event": "the requester still believes S is open and sends T with turn S", "expect": ["refusal nothing-to-stop for T", "R remains S's sole terminal result", "no stopped result replaces R", "nothing-to-stop does not disclose R's status or promise its recovery"] }
+      ]
+    },
+    {
+      "name": "repeated prospective stops preserve one target without affecting another",
+      "steps": [
+        { "event": "N is open; T with turn S was accepted while S is unseen" },
+        { "event": "a different stop U with turn S arrives", "expect": ["ack U", "retain suppression of opening request S", "no turn or result created for S", "N remains open"] },
+        { "event": "N closes; valid opening request S arrives", "expect": ["ack S", "taken for S as not-acted-on", "S still cannot start work when the conversation becomes idle"] }
+      ]
+    },
+    {
+      "name": "a stop beside an unrelated request preserves both delivery obligations",
+      "steps": [
+        { "event": "S has closed; the requester has sent unrelated opening request N without receiving its acknowledgement" },
+        { "event": "the requester sends T with turn S beside N; N arrives and opens its turn", "expect": ["N's opening request is not withdrawn or suppressed by T"] },
+        { "event": "ack N arrives while T remains unconfirmed", "expect": ["later ordinary submissions remain held by T's sending slot"] },
+        { "event": "T arrives and its refusal reaches the requester", "expect": ["refusal nothing-to-stop for T", "N remains open", "both sending slots are resolved and ordinary delivery can continue"] }
+      ]
+    },
+    {
+      "name": "acceptance and timeout have distinct meanings for stop",
+      "steps": [
+        { "event": "the requester sends T with turn S and exhausts attempts without a reply", "expect": ["T is not confirmed", "no assertion that S has stopped", "T may still arrive later and is still scoped to S"] },
+        { "event": "within the retained context ack T later arrives but S's terminal notification is missing", "expect": ["acceptance of T is known", "ack T is not S's terminal result", "no assertion of application cancellation, rollback, or descendant quiescence"] }
+      ]
+    }
+  ]
+}

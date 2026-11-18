@@ -1,0 +1,838 @@
+{
+  "description": "Required core timestamp profile and comparison artifacts. validation_cases apply to a core sent_at or a present question/approval deadline. schema_valid records only the time schema pattern and type check; valid also requires Gregorian calendar validation under core/timestamps.md. Validity here is not authentication or semantic admission. comparison_cases contain valid profile values and require exact value comparison independently of string spelling. cases are abstract adapter traces, not executed actor implementations. Unless stated otherwise, frames are first-seen, currently authenticated, canonically signed, correctly addressed, authorized and in established live scopes with applicable resource and reference checks satisfied; earlier failures and retained-copy handling retain their specified precedence. Ordinary refusal expectations assume a non-control message and authorized return route. O is the approval/question originator and owns the deadline. This artifact does not prescribe an implementation type, clock source, synchronization mechanism or real-time guarantee.",
+  "profile": {
+    "reference": "../timestamps.md",
+    "year_min": 1,
+    "year_max": 9999,
+    "fractional_digits_max": 6,
+    "explicit_leap_seconds": false,
+    "timezone": "Z",
+    "comparison_relations": [
+      "less",
+      "equal",
+      "greater"
+    ]
+  },
+  "validation_cases": [
+    {
+      "name": "whole seconds",
+      "value": "2030-01-01T12:00:00Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "one fractional digit",
+      "value": "2030-01-01T12:00:00.1Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "two fractional digits",
+      "value": "2030-01-01T12:00:00.12Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "three fractional digits",
+      "value": "2030-01-01T12:00:00.123Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "four fractional digits",
+      "value": "2030-01-01T12:00:00.1234Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "five fractional digits",
+      "value": "2030-01-01T12:00:00.12345Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "six fractional digits",
+      "value": "2030-01-01T12:00:00.123456Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "six zero fractional digits",
+      "value": "2030-01-01T12:00:00.000000Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "minimum year",
+      "value": "0001-01-01T00:00:00Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "maximum timestamp",
+      "value": "9999-12-31T23:59:59.999999Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "ordinary leap year",
+      "value": "2024-02-29T00:00:00Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "century divisible by four hundred",
+      "value": "2000-02-29T00:00:00Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "future century divisible by four hundred",
+      "value": "2400-02-29T00:00:00Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "last day of thirty-day month",
+      "value": "2030-04-30T23:59:59.999999Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "last day of thirty-one-day month",
+      "value": "2030-01-31T23:59:59Z",
+      "schema_valid": true,
+      "valid": true
+    },
+    {
+      "name": "seven fractional digits",
+      "value": "2030-01-01T12:00:00.1234567Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "seven digits ending in zero",
+      "value": "2030-01-01T12:00:00.1234560Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "nine fractional digits",
+      "value": "2030-01-01T12:00:00.123456789Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "empty fraction",
+      "value": "2030-01-01T12:00:00.Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "comma fraction",
+      "value": "2030-01-01T12:00:00,123456Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "year zero",
+      "value": "0000-01-01T00:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "expanded year",
+      "value": "10000-01-01T00:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "signed year",
+      "value": "+2030-01-01T00:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "negative year",
+      "value": "-0001-01-01T00:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "month zero",
+      "value": "2030-00-01T00:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "month thirteen",
+      "value": "2030-13-01T00:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "day zero",
+      "value": "2030-01-00T00:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "day thirty-two",
+      "value": "2030-01-32T00:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "hour twenty-four",
+      "value": "2030-01-01T24:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "minute sixty",
+      "value": "2030-01-01T12:60:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "second sixty-one",
+      "value": "2030-01-01T12:00:61Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "historical positive leap label",
+      "value": "2016-12-31T23:59:60Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "arbitrary positive leap label",
+      "value": "2030-01-01T12:00:60Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "lowercase separator",
+      "value": "2030-01-01t12:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "lowercase zone",
+      "value": "2030-01-01T12:00:00z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "space separator",
+      "value": "2030-01-01 12:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "UTC offset spelling",
+      "value": "2030-01-01T12:00:00+00:00",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "nonzero offset",
+      "value": "2030-01-01T12:00:00-06:00",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "unknown offset spelling",
+      "value": "2030-01-01T12:00:00-00:00",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "missing zone",
+      "value": "2030-01-01T12:00:00",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "leading space",
+      "value": " 2030-01-01T12:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "trailing space",
+      "value": "2030-01-01T12:00:00Z ",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "trailing newline",
+      "value": "2030-01-01T12:00:00Z\n",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "trailing CRLF",
+      "value": "2030-01-01T12:00:00Z\r\n",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "leading newline",
+      "value": "\n2030-01-01T12:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "trailing arbitrary text",
+      "value": "2030-01-01T12:00:00Zjunk",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "trailing Unicode line separator",
+      "value": "2030-01-01T12:00:00Z ",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "non-ASCII digits",
+      "value": "２０３０-01-01T12:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "single-digit month",
+      "value": "2030-1-01T12:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "single-digit hour",
+      "value": "2030-01-01T2:00:00Z",
+      "schema_valid": false,
+      "valid": false
+    },
+    {
+      "name": "February thirty",
+      "value": "2030-02-30T12:00:00Z",
+      "schema_valid": true,
+      "valid": false
+    },
+    {
+      "name": "non-leap February twenty-nine",
+      "value": "2030-02-29T12:00:00Z",
+      "schema_valid": true,
+      "valid": false
+    },
+    {
+      "name": "century nineteen hundred is not leap",
+      "value": "1900-02-29T12:00:00Z",
+      "schema_valid": true,
+      "valid": false
+    },
+    {
+      "name": "century twenty-one hundred is not leap",
+      "value": "2100-02-29T12:00:00Z",
+      "schema_valid": true,
+      "valid": false
+    },
+    {
+      "name": "April thirty-one",
+      "value": "2030-04-31T12:00:00Z",
+      "schema_valid": true,
+      "valid": false
+    },
+    {
+      "name": "June thirty-one",
+      "value": "2030-06-31T12:00:00Z",
+      "schema_valid": true,
+      "valid": false
+    },
+    {
+      "name": "September thirty-one",
+      "value": "2030-09-31T12:00:00Z",
+      "schema_valid": true,
+      "valid": false
+    },
+    {
+      "name": "November thirty-one",
+      "value": "2030-11-31T12:00:00Z",
+      "schema_valid": true,
+      "valid": false
+    },
+    {
+      "name": "minimum year is not leap",
+      "value": "0001-02-29T00:00:00Z",
+      "schema_valid": true,
+      "valid": false
+    }
+  ],
+  "comparison_cases": [
+    {
+      "name": "absent fraction equals six zero digits",
+      "left": "2030-01-01T12:00:00Z",
+      "right": "2030-01-01T12:00:00.000000Z",
+      "relation": "equal"
+    },
+    {
+      "name": "one digit equals two with trailing zero",
+      "left": "2030-01-01T12:00:00.1Z",
+      "right": "2030-01-01T12:00:00.10Z",
+      "relation": "equal"
+    },
+    {
+      "name": "one digit equals six after right padding",
+      "left": "2030-01-01T12:00:00.1Z",
+      "right": "2030-01-01T12:00:00.100000Z",
+      "relation": "equal"
+    },
+    {
+      "name": "one hundred microseconds remain distinct",
+      "left": "2030-01-01T12:00:00.1234Z",
+      "right": "2030-01-01T12:00:00.1235Z",
+      "relation": "less"
+    },
+    {
+      "name": "one microsecond remains distinct",
+      "left": "2030-01-01T12:00:00.123455Z",
+      "right": "2030-01-01T12:00:00.123456Z",
+      "relation": "less"
+    },
+    {
+      "name": "reverse one-microsecond comparison",
+      "left": "2030-01-01T12:00:00.123456Z",
+      "right": "2030-01-01T12:00:00.123455Z",
+      "relation": "greater"
+    },
+    {
+      "name": "variable precision cannot use raw lexical order",
+      "left": "2030-01-01T12:00:00.1Z",
+      "right": "2030-01-01T12:00:00.100001Z",
+      "relation": "less"
+    },
+    {
+      "name": "second boundary",
+      "left": "2030-01-01T12:00:00.999999Z",
+      "right": "2030-01-01T12:00:01Z",
+      "relation": "less"
+    },
+    {
+      "name": "day boundary",
+      "left": "2030-01-01T23:59:59.999999Z",
+      "right": "2030-01-02T00:00:00Z",
+      "relation": "less"
+    },
+    {
+      "name": "leap day boundary",
+      "left": "2000-02-28T23:59:59.999999Z",
+      "right": "2000-02-29T00:00:00Z",
+      "relation": "less"
+    },
+    {
+      "name": "ordinary February boundary",
+      "left": "2100-02-28T23:59:59.999999Z",
+      "right": "2100-03-01T00:00:00Z",
+      "relation": "less"
+    },
+    {
+      "name": "year boundary",
+      "left": "2029-12-31T23:59:59.999999Z",
+      "right": "2030-01-01T00:00:00Z",
+      "relation": "less"
+    },
+    {
+      "name": "before epoch remains distinct",
+      "left": "1969-12-31T23:59:59.999999Z",
+      "right": "1970-01-01T00:00:00Z",
+      "relation": "less"
+    },
+    {
+      "name": "maximum-year adjacent microseconds remain distinct",
+      "left": "9999-12-31T23:59:59.999998Z",
+      "right": "9999-12-31T23:59:59.999999Z",
+      "relation": "less"
+    },
+    {
+      "name": "minimum year precedes modern year",
+      "left": "0001-01-01T00:00:00Z",
+      "right": "2030-01-01T00:00:00Z",
+      "relation": "less"
+    }
+  ],
+  "cases": [
+    {
+      "name": "invalid calendar sent_at is refused before admission",
+      "steps": [
+        {
+          "event": "first-seen otherwise valid say S has sent_at 2030-02-30T12:00:00Z",
+          "expect": [
+            "the time shape matches the payload schema but explicit Gregorian validation fails",
+            "classify S as malformed at structural checking and send the permitted ordinary refusal",
+            "do not acknowledge S, open a turn, or normalize the date to March"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an impossible approval deadline creates no pending request",
+      "steps": [
+        {
+          "event": "first-seen approval P has deadline 2100-02-29T12:00:00Z",
+          "expect": [
+            "classify P as malformed during structural checking",
+            "do not acknowledge P, retain it as a pending approval, or perform timer arithmetic on the invalid value"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an impossible question deadline creates no pending question",
+      "steps": [
+        {
+          "event": "first-seen otherwise valid question Q targets an open turn and has deadline 2030-04-31T12:00:00Z",
+          "expect": [
+            "classify Q as malformed during structural checking",
+            "do not acknowledge Q or create a pending question or timer",
+            "do not normalize the deadline into May"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "excess precision is invalid even when discarded digits are zero",
+      "steps": [
+        {
+          "event": "first-seen approval P has deadline 2030-01-01T12:00:00.1234560Z",
+          "expect": [
+            "classify P as malformed",
+            "do not shorten the signed value to six digits, round it, or admit it based on equivalent numeric value"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invalid decision timestamp cannot fall through a comparison",
+      "steps": [
+        {
+          "event": "pending valid approval P has deadline 2030-01-01T12:00:00.123456Z; newly received decide D has sent_at 2030-01-01T12:60:00Z",
+          "expect": [
+            "classify D as malformed at structural checking before decision consistency or owner-clock comparisons",
+            "do not turn an invalid parse or NaN into a false later-than result",
+            "D supplies no accepted decision"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invalid ack timestamp receives no core response",
+      "steps": [
+        {
+          "event": "recognizable first-seen ack A has sent_at 2030-02-30T12:00:00Z",
+          "expect": [
+            "classify its timestamp as malformed if structural checking is reached",
+            "do not use A as confirmation",
+            "send no ack, refusal, or verification diagnostic in response to the control"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invalid reserved diagnostic timestamp has no submission effect",
+      "steps": [
+        {
+          "event": "recognizable first-seen reserved refusal D has the expected authenticated peer and unique original-route association but sent_at 2030-01-01T12:00:00.1234567Z",
+          "expect": [
+            "reject the invalid diagnostic at structural checking",
+            "do not terminate the associated attempt series or alter a slot or disposition",
+            "send no core response to D"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unsupported version precedes timestamp validation",
+      "steps": [
+        {
+          "event": "otherwise authenticated and correctly addressed non-control frame has version 99 and sent_at 2030-02-30T12:00:00Z",
+          "expect": [
+            "classify the supported-version failure as unsupported before checking the timestamp",
+            "send only the response permitted by the original binding and control rules",
+            "perform no admission or timer arithmetic"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invalid timestamp precedes unsupported content type",
+      "steps": [
+        {
+          "event": "otherwise valid first-seen question Q has deadline 2030-02-30T12:00:00Z and a structurally shaped content block of an unsupported type",
+          "expect": [
+            "classify Q as malformed for its timestamp before the later content-type check",
+            "do not create question state or timer arithmetic"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "earlier authentication failure keeps precedence",
+      "steps": [
+        {
+          "event": "first-seen non-control frame has an invalid signature and impossible sent_at 2030-02-30T12:00:00Z",
+          "expect": [
+            "classify the verification failure as bad-signature before payload timestamp validation",
+            "a permitted response uses the restricted verification diagnostic path",
+            "no semantic request is admitted"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "earlier addressing failure keeps precedence",
+      "steps": [
+        {
+          "event": "first-seen signed non-control frame passes earlier verification checks but is addressed elsewhere and has impossible sent_at 2030-02-30T12:00:00Z",
+          "expect": [
+            "classify not-addressed-to-me before timestamp validation",
+            "the timestamp does not authorize response routing or semantic admission"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "retired scope rejects before timestamp feedback",
+      "steps": [
+        {
+          "event": "a frame with impossible sent_at arrives on a retired provisioned conversation scope",
+          "expect": [
+            "apply the existing generic binding rejection before retained-state or timestamp-specific feedback",
+            "do not create replacement context or reserve a message ID",
+            "do not send a core malformed refusal"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "eligible exact retained copies keep their earlier disposition",
+      "steps": [
+        {
+          "event": "valid approval P with six-digit timestamps was authenticated and accepted while its credential was valid, and its exact signed bytes and disposition remain retained",
+          "expect": [
+            "retain the established authentication fact and exact bytes"
+          ]
+        },
+        {
+          "event": "the same exact signed P is retried within its live eligible scope after credential expiry and after P has closed",
+          "expect": [
+            "apply P04 retained-copy handling with independently current feedback authorization",
+            "do not treat its past sent_at or deadline as a new malformed timestamp or a new pending request",
+            "do not repeat approval admission or reopen P"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "eligible exact retained controls remain no-ops",
+      "steps": [
+        {
+          "event": "an exact retained ack with a valid six-digit sent_at is received again on its eligible active route after its credential expires",
+          "expect": [
+            "preserve prior confirmation under retained-copy handling",
+            "send no core response",
+            "do not freshly expire the retained control based on its credential or timestamp age"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "equivalent timestamp strings do not make identical signed retries",
+      "steps": [
+        {
+          "event": "accepted message M uses sent_at 2030-01-01T12:00:00.1Z and its exact signed bytes are retained",
+          "expect": [
+            "its timestamp value equals the value denoted by 2030-01-01T12:00:00.100000Z"
+          ]
+        },
+        {
+          "event": "a new signed frame reuses M's scoped ID but replaces sent_at with 2030-01-01T12:00:00.100000Z",
+          "expect": [
+            "classify conflicting signed identity as malformed under existing reuse rules",
+            "do not normalize the frame into an exact retained copy",
+            "preserve the accepted original bytes and disposition"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "decision sent_at equality can pass while the owner is still before expiry",
+      "steps": [
+        {
+          "event": "pending P has deadline 2030-01-01T12:00:00.123456Z; valid authorized bound D has sent_at equal to that deadline; O processes D at 2030-01-01T12:00:00.123455Z on its own clock",
+          "expect": [
+            "the sender-time consistency comparison passes because sent_at is no later than deadline",
+            "the independent owner-clock comparison is strictly before the deadline",
+            "accept the otherwise valid decision once and close P as decided",
+            "no global clock ordering or synchronization guarantee follows"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "one microsecond later sent_at fails consistency before owner expiry",
+      "steps": [
+        {
+          "event": "pending P has deadline 2030-01-01T12:00:00.123456Z; otherwise valid D has sent_at 2030-01-01T12:00:00.123457Z; O is still before the deadline",
+          "expect": [
+            "refuse D as closed under the decision consistency rule",
+            "do not truncate either value to milliseconds or round away the one-microsecond difference",
+            "D supplies no accepted decision"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "owner equality expires approval even if the callback has not run",
+      "steps": [
+        {
+          "event": "P remains pending with deadline 2030-01-01T12:00:00.123456Z; D has an earlier valid sent_at; O processes it at exactly the deadline before its expiry callback runs",
+          "expect": [
+            "expire P using the owner-clock comparison at decision processing",
+            "refuse D as closed and issue owner closure expired",
+            "the earlier sender time and delayed callback do not extend P"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "owner later processing cannot use timely sent_at to reopen approval",
+      "steps": [
+        {
+          "event": "P deadline is 2030-01-01T12:00:00.123456Z; valid D has sent_at 2030-01-01T12:00:00.123455Z; O processes D at 2030-01-01T12:00:00.123457Z",
+          "expect": [
+            "expire still-pending P and refuse D as closed",
+            "preserve the one-microsecond owner-clock distinction",
+            "do not infer acceptance from the sender timestamp"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "question expiry uses the same exact owner boundary",
+      "steps": [
+        {
+          "event": "open question Q has deadline 2030-01-01T12:00:00.123456Z; its originator processes a new answer at exactly that deadline",
+          "expect": [
+            "expire Q on the originator clock and refuse the later new answer as closed",
+            "do not extend the question because its expiry callback has not run",
+            "do not round the deadline to milliseconds"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "credential tolerance does not extend a payload deadline",
+      "steps": [
+        {
+          "event": "D passes current credential checks including the credential-specific NumericDate allowance; P's deadline has already been reached on O's clock",
+          "expect": [
+            "refuse the new decision as closed",
+            "do not add the credential allowance or a Kerberos-style skew window to P's deadline",
+            "keep credential validity and decision expiry separate"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "whole-second and millisecond producers remain conformant",
+      "steps": [
+        {
+          "event": "an application creates valid messages with whole-second or three-digit sent_at values and valid question deadlines with six fractional digits",
+          "expect": [
+            "accept the permitted representations subject to the normal independent checks",
+            "the producer need not emit six digits or claim a microsecond-accurate clock",
+            "every receiver must nevertheless preserve the six-digit deadline"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "application timestamp data keeps its own contract",
+      "steps": [
+        {
+          "event": "otherwise valid say S has a valid core sent_at and data containing a nine-digit sensor timestamp allowed by its selected application schema",
+          "expect": [
+            "do not apply the core six-digit limit recursively to application data",
+            "validate application data under its selected contract",
+            "the sensor timestamp is not substituted for the core sent_at or deadline"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "operation format annotations remain annotations",
+      "steps": [
+        {
+          "event": "an advertised operation schema uses format date-time for an application string and otherwise conforms to the embedded-schema profile",
+          "expect": [
+            "core timestamp validation does not turn the operation format annotation into a core assertion",
+            "application semantics remain the application owner's responsibility"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a valid timestamp alone supplies no freshness or processing order",
+      "steps": [
+        {
+          "event": "a currently authenticated first-seen otherwise admissible message has a valid old sent_at and satisfies retained-state and continuity requirements",
+          "expect": [
+            "do not reject it solely for exceeding an invented payload timestamp age",
+            "sent_at does not order processing, reopen state, or authorize a retry",
+            "apply any separately established application or deployment restrictions under their own contract"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "deadline before sent_at is not a general structural error",
+      "steps": [
+        {
+          "event": "an otherwise valid question or approval has a valid deadline earlier than its own valid sent_at",
+          "expect": [
+            "the timestamps are structurally valid; no general deadline >= sent_at rule is inferred",
+            "apply the existing originator-owned lifecycle and any already-expired behavior",
+            "a decision's separate sent_at <= approval deadline consistency rule still applies"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "microsecond representation does not promise execution by a deadline",
+      "steps": [
+        {
+          "event": "a deployment accepts a valid approval decision before its microsecond deadline but the application action has not executed",
+          "expect": [
+            "permission has been accepted but action completion is not established",
+            "the application contract governs effect timing",
+            "clock accuracy, scheduling latency, transport latency and synchronization remain deployment responsibilities"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "finer internal clocks need not be reduced to wire resolution",
+      "steps": [
+        {
+          "event": "P deadline is 2030-01-01T12:00:00.123456Z and O's internal clock reports 2030-01-01T12:00:00.1234559Z during processing",
+          "expect": [
+            "the internal reading is before the deadline",
+            "the six-digit payload limit does not require rounding an internal clock reading across the boundary",
+            "this internal reading is not a permitted core wire timestamp with seven fractional digits"
+          ]
+        }
+      ]
+    }
+  ]
+}

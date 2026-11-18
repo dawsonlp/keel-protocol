@@ -1,0 +1,278 @@
+{
+  "description": "Required core diagnostic receiving, delivery-state and control-response behavior. Unless a step states otherwise, frames satisfy the existing size/type limits, current authentication, canonical payload, structure, namespace, audience and applicable continuity requirements except for the condition under test. D denotes a signed refusal to the reserved recipient unverified with no conversation, only the required minimal payload fields and optional in_response_to, and an allowed verification-stage reason. The original route and captured guard are retained independently of payload claims. Attempt association identifies the outbound message in that route/scope, not which physical retransmission failed. Distinct letters denote distinct message identities; equal UUIDs across separately identified scopes are stated explicitly. The concrete binding outcomes use keel.provisioned-context.v1 and the core WebSocket profile where named. These abstract conformance traces do not establish implementation conformance or reproduce a runtime exploit. Core timestamp validation and comparison are specified separately in timestamps.json.",
+  "cases": [
+    {
+      "name": "a matched diagnostic stops attempts without semantic refusal or requester release",
+      "steps": [
+        { "event": "requester A retains an unconfirmed say S sent to B on an active authorized route; S holds the ordinary sending slot" },
+        { "event": "first-seen D is currently authenticated as B and uniquely names S in that captured route and scope", "expect": ["accept D through the restricted diagnostic exception", "stop S's automatic attempt series", "S remains not confirmed rather than semantically refused", "keep S's requester slot held until confirmation, semantic refusal or explicit authorized release", "send no core response to D"] }
+      ]
+    },
+    {
+      "name": "authorized local release after a diagnostic requires no mandatory human prompt",
+      "steps": [
+        { "event": "D stopped S's attempt series and S remains unconfirmed with its requester slot held" },
+        { "event": "a policy explicitly authorized by whoever the requester acts for releases S", "expect": ["release S's sending slot", "the policy may act without a new human prompt", "do not reinterpret D as semantic refusal or infer non-execution", "a newly available slot supplies no authority to repeat uncertain work under a new ID"] }
+      ]
+    },
+    {
+      "name": "an actor notification sender retains its existing release policy",
+      "steps": [
+        { "event": "conversation actor B retains outgoing result R addressed to requester A and its original active route" },
+        { "event": "currently authenticated A sends valid D uniquely associated with the attempted delivery of R", "expect": ["stop R's automatic attempt series without claiming R was delivered", "B may release the notification sending slot under its existing infrastructure policy", "do not undo the actor's terminal turn outcome or manufacture another result", "send no response to D"] }
+      ]
+    },
+    {
+      "name": "an actor principal acting as requester follows requester release rules",
+      "steps": [
+        { "event": "actor-principal A acts as requester to B and retains unconfirmed opening S" },
+        { "event": "valid matched D from B names S", "expect": ["stop the identified attempt series", "A's actor principal spelling does not grant the conversation-actor notification release rule", "hold S's requester slot absent confirmation, semantic refusal or explicit authorized release", "S remains not confirmed"] }
+      ]
+    },
+    {
+      "name": "later valid confirmation can resolve a diagnostically stopped submission",
+      "steps": [
+        { "event": "matched D stopped S's automatic attempts; S remains eligible and not confirmed within its active context" },
+        { "event": "an otherwise valid result R for S arrives from its conversation actor", "expect": ["accept and acknowledge R under ordinary notification rules", "confirm S and release the slot still held by S", "retain the reported terminal outcome", "the earlier diagnostic cannot block valid later confirmation"] }
+      ]
+    },
+    {
+      "name": "a diagnostic cannot downgrade known acceptance",
+      "steps": [
+        { "event": "A already has valid acknowledgement or semantic confirmation of S's acceptance" },
+        { "event": "valid D from the intended peer refers to a retained attempt of S on its original authorized route", "expect": ["preserve established acceptance and any terminal facts", "do not change S to refused or not confirmed", "do not release a newer message's slot", "send no response to D"] }
+      ]
+    },
+    {
+      "name": "the echoed ID does not prove rejection of the original signed bytes",
+      "steps": [
+        { "event": "B receives an invalid frame claiming S's ID; another copy of the real S may already have been accepted" },
+        { "event": "B's signed D is correctly associated with A's attempted delivery of S", "expect": ["D establishes only B's verification diagnostic about the delivered frame", "do not claim that the exact original S was rejected or never executed", "do not create terminal semantic-refusal state for S", "do not automatically re-sign S or submit the work under a new ID"] },
+        { "event": "in a separate exchange A retransmits N on the same eligible route/scope; a currently authenticated first-seen diagnostic generated for an earlier physical transmission arrives during N's deliberate later attempt series", "expect": ["the matched diagnostic can end the currently running series for N", "do not require selection of a unique physical retransmission before applying that effect", "do not claim that the latest physical attempt failed or that the report proves freshness", "keep N's semantic outcome and requester-release authority distinct"] }
+      ]
+    },
+    {
+      "name": "an uncorrelated diagnostic changes no submission",
+      "steps": [
+        { "event": "A has an independently authorized diagnostic route for B but no unique applicable original protocol scope for this notice; first-seen D from B omits in_response_to", "expect": ["the minimal uncorrelated diagnostic can be a valid authenticated peer notice", "change no submission, sending slot, turn or approval", "do not substitute the current outstanding message as its target", "local presentation does not create scoped acceptance or P04 retained-control eligibility", "send no core response"] }
+      ]
+    },
+    {
+      "name": "unknown diagnostic correlation reserves no outgoing identity",
+      "steps": [
+        { "event": "authenticated expected peer B sends valid D with correlation X inside an independently established original protocol scope, but no retained outbound attempt matches X", "expect": ["change no submission or sending slot", "do not create an outbound request or reserve X as a refused sender message", "do not return unknown or another core response", "retaining scoped D preserves its lack of a submission effect"] },
+        { "event": "a later locally issued outbound message legitimately uses X within the same scope; an exact copy of D is then received", "expect": ["do not retroactively associate D with the later message", "the new message's disposition, attempts and slot remain unchanged", "D's retained no-effect association remains unchanged", "send no response to D"] }
+      ]
+    },
+    {
+      "name": "ambiguous same-ID diagnostic correlation cannot select a scope",
+      "steps": [
+        { "event": "one authorized connection explicitly segregates a conversation request S and an actor-level describe T; both use UUID X and target B, and the captured attempt association does not distinguish which D concerns" },
+        { "event": "B sends otherwise valid no-conversation D naming X", "expect": ["do not choose S or T by current slot, lookup order or conversation preference", "change neither attempt series nor sending slot", "do not merge the separately scoped identities", "send no core response to the ambiguous diagnostic"] }
+      ]
+    },
+    {
+      "name": "a diagnostic about an old input cannot release a newer slot",
+      "steps": [
+        { "event": "A explicitly released unconfirmed S; newer N now holds the ordinary slot, while S's original attempt association remains retained" },
+        { "event": "valid D uniquely associates with S on the same still-authorized original scope", "expect": ["apply any diagnostic observation only to S", "N's attempt series and slot remain unchanged", "do not infer S's non-execution or reopen an old slot", "send no response to D"] }
+      ]
+    },
+    {
+      "name": "a foreign signer cannot diagnose the expected peer's delivery",
+      "steps": [
+        { "event": "the active provisioned route records B as the peer; A retains S addressed to B" },
+        { "event": "a correctly signed D from unrelated C claims S's ID on that route", "expect": ["the authenticated signer fails the provisioned peer/scope association", "close the original connection with generic 1008 and no core response", "do not stop or refuse S based on C's claim", "preserve prior dispositions and establish no replacement context"] }
+      ]
+    },
+    {
+      "name": "correct signer on another route cannot borrow an attempt",
+      "steps": [
+        { "event": "S was attempted on original connection K1; separate active authorized connection K2 also has B as peer" },
+        { "event": "valid D from B arrives on K2 and names S, with no attempted S in K2's captured association", "expect": ["do not borrow S's association from K1 merely because signer and ID match", "change no K1 submission or slot", "the unmatched K2 diagnostic supplies no S disposition", "send no core response"] }
+      ]
+    },
+    {
+      "name": "transport identity cannot replace diagnostic authentication",
+      "steps": [
+        { "event": "a trusted route expects B and carries recognizable D whose message signature is invalid", "expect": ["do not authenticate D as B merely from the transport identity", "do not apply correlation or change any delivery state", "send no bad-signature refusal or acknowledgement in response to this control", "earlier mandatory binding failures retain precedence"] }
+      ]
+    },
+    {
+      "name": "a previously unseen expired diagnostic has no current authority",
+      "steps": [
+        { "event": "D is recognizable as a refusal and matches a claimed S correlation, but D has never been accepted and its signing credential is expired", "expect": ["do not admit D through first-seen authentication", "do not stop S's attempts or release its slot from that unauthenticated report", "send no certificate-expired reply to the control", "an earlier timestamp or the known S does not create retained authentication for D"] }
+      ]
+    },
+    {
+      "name": "association must still be valid at diagnostic handling",
+      "steps": [
+        { "event": "D passes initial verification and candidate association for S on captured guard G" },
+        { "event": "G retires or loses required audience authority before D can change sending state", "expect": ["do not apply D to S or a replacement context", "use the original guard's generic binding rejection if its connection remains open, otherwise discard", "send no core disposition or retained-history detail", "initial verification does not preserve retired admission authority"] }
+      ]
+    },
+    {
+      "name": "a queued diagnostic cannot close a replacement connection",
+      "steps": [
+        { "event": "D is queued under old connection K1 and guard G1; G1 retires and a fresh connection K2 with guard G2 is established" },
+        { "event": "the queued D resumes after K2 becomes active", "expect": ["evaluate only the captured retired G1 association", "discard if K1 is closed or close only K1 with generic 1008 if still open", "do not look up G2 by a reused connection name", "do not close K2, change its slots or disclose old retained state"] }
+      ]
+    },
+    {
+      "name": "omitting conversation does not bypass the original retired scope",
+      "steps": [
+        { "event": "D concerns an attempt inside retired conversation C1; its reserved payload necessarily omits conversation" },
+        { "event": "D is presented as if it were unrestricted actor-level traffic", "expect": ["the original attempt association still requires C1's guard", "do not reclassify D into a new conversation or independent actor-level attempt", "retirement receives its ordinary generic binding rejection without core feedback", "no outgoing request or admission scope is reconstructed"] }
+      ]
+    },
+    {
+      "name": "an independently segregated actor-level diagnostic remains actor-level",
+      "steps": [
+        { "event": "an authorized actor-level describe D0 has its own retained attempt association and does not rely on conversation C's guard" },
+        { "event": "a valid reserved diagnostic from D0's intended actor uniquely matches that still-authorized actor-level attempt", "expect": ["handle the diagnostic only for D0's non-conversation delivery", "do not establish, resume or confirm C", "do not borrow C's message or sending state", "send no response to the diagnostic"] }
+      ]
+    },
+    {
+      "name": "reserved diagnostics permit only verification-stage reasons",
+      "steps": [
+        { "event": "separate well-formed diagnostics report malformed, algorithm-key-mismatch, certificate-invalid, certificate-expired, key-not-certified, bad-signature, not-canonical or not-addressed-to-me from the corresponding verification stage", "expect": ["each reason is permitted in the reserved minimal form", "current authentication and unique attempt association remain required for any sending-state effect", "the reason does not establish semantic nonacceptance or non-execution"] },
+        { "event": "another recognizable reserved refusal uses busy, closed, unknown, not-authorized, wrong-request, unbound-decision, nothing-to-stop or unsupported", "expect": ["reject the reserved form as invalid", "do not start busy backoff, close an exchange or change an attempt from that control", "send no core response"] }
+      ]
+    },
+    {
+      "name": "the reserved payload is closed and minimal",
+      "steps": [
+        { "event": "a recognizable reserved refusal adds detail, metadata, evidence, caused_by, on_behalf_of, application data or another extra payload field", "expect": ["the diagnostic form is invalid even when that field is otherwise permitted on an ordinary message", "do not apply its claimed submission effect", "send no acknowledgement or refusal to the control"] },
+        { "event": "another reserved refusal includes conversation in to", "expect": ["the reserved recipient shape is invalid", "do not infer that the claimed conversation makes it an ordinary addressed refusal", "send no core response; earlier profile guard rejection still applies when applicable"] }
+      ]
+    },
+    {
+      "name": "other message kinds cannot use the reserved receiving exception",
+      "steps": [
+        { "event": "ack, describe, description or say uses principal unverified as its destination", "expect": ["none qualifies for the restricted diagnostic recipient exception", "none is admitted or used to confirm a submission through that exception", "a recognizable ack receives no core response", "non-control kinds follow earlier guard and ordinary addressing rejection rather than gaining authority from the reserved spelling"] }
+      ]
+    },
+    {
+      "name": "invalid first-seen acknowledgements cannot start a control chain",
+      "steps": [
+        { "event": "a previously unseen frame is safely recognizable as ack but fails signature, canonical encoding, supported version, payload shape or correlation requirements", "expect": ["do not confirm any message or release any slot", "send neither ack nor refusal in response", "no authenticated fact is created by bounded untrusted control classification", "binding size, type and scope failures retain their required outcomes"] }
+      ]
+    },
+    {
+      "name": "invalid first-seen ordinary refusals receive no diagnostic reply",
+      "steps": [
+        { "event": "a previously unseen ordinary addressed refusal is recognizable as a control but has invalid credentials, bad signature, malformed fields or a numeric sent_at", "expect": ["do not apply the invalid refusal to an outgoing message", "send no core response", "numeric sent_at exercises existing type validation without selecting new S01 calendar rules", "local fault presentation does not become protocol acknowledgement"] }
+      ]
+    },
+    {
+      "name": "valid ordinary controls retain their existing delivery meaning without replies",
+      "steps": [
+        { "event": "a valid ordinary ack from the intended recipient names unconfirmed S in its correct scope", "expect": ["confirm S and release its slot", "send no acknowledgement of the ack"] },
+        { "event": "in a separate exchange, a valid authenticated ordinary semantic refusal terminally refuses N", "expect": ["retain N's semantic refusal and end its attempts under ordinary rules", "send no acknowledgement or refusal of that control"] },
+        { "event": "another valid ordinary refusal reports busy for its identified still-unaccepted message", "expect": ["use ordinary backoff without consuming an attempt", "busy does not acknowledge acceptance", "send no core response to busy"] }
+      ]
+    },
+    {
+      "name": "unmatched ordinary controls cannot select the current sending slot",
+      "steps": [
+        { "event": "after earlier guards and authentication, an ordinary ack or refusal has no valid unique outgoing correlation in its addressed scope", "expect": ["change no outgoing disposition or sending slot", "do not match another conversation or the latest pending message by convenience", "send no unknown or malformed refusal to the control"] }
+      ]
+    },
+    {
+      "name": "conflicting control bytes preserve established state without a reply",
+      "steps": [
+        { "event": "accepted control A and its exact signed bytes are retained under their scoped identity" },
+        { "event": "a freshly authenticated recognizable control reuses A's scoped ID with different bytes", "expect": ["reject the conflicting reuse and preserve A's accepted bytes and prior effects", "do not apply the new correlation or reason", "send no core refusal or acknowledgement for the conflicting control"] }
+      ]
+    },
+    {
+      "name": "an eligible exact retained diagnostic remains inert after credential expiry",
+      "steps": [
+        { "event": "D was validly admitted, its authentication and association were retained, and its one diagnostic effect was applied" },
+        { "event": "D's credential expires and an exact copy arrives within the same active authorized scope", "expect": ["use eligible retained-copy handling before first-seen credential expiry", "send no response to D", "do not repeat its delivery-state effect or select a newer attempt", "do not treat the copy as fresh authority or as a new failed first delivery"] }
+      ]
+    },
+    {
+      "name": "exact retained ordinary controls do not repeat transitions",
+      "steps": [
+        { "event": "a valid ack or ordinary refusal has already been handled and remains retained" },
+        { "event": "its exact signed copy is delivered again inside its authorized live scope, including after ordinary credential expiry", "expect": ["preserve the earlier observation and disposition", "repeat no slot release, retry transition or exchange action", "send no fresh minimal acknowledgement or refusal for the control"] }
+      ]
+    },
+    {
+      "name": "unassured routes reveal no control retention hit or miss",
+      "steps": [
+        { "event": "the same unassured route separately presents a retained control, an unseen control and an expired control", "expect": ["apply the independent audience guard before retained-state feedback", "close the original WebSocket connection with generic 1008 in each case", "send no core disposition or identifying close detail", "do not change retained states or reserve presented IDs", "no history distinction follows from the chosen response"] }
+      ]
+    },
+    {
+      "name": "retained control evidence cannot revive an ended scope",
+      "steps": [
+        { "event": "an exact formerly accepted diagnostic or ack is retained as historical evidence, but its original provisioned scope has retired" },
+        { "event": "the exact control is presented again", "expect": ["the original scope guard rejects before retained-copy handling", "use generic 1008 on the original open connection or discard if it is closed", "send no core response or retained-history feedback", "do not restore context, repeat a control effect or touch a replacement scope"] }
+      ]
+    },
+    {
+      "name": "unclassifiable frames end at the binding boundary",
+      "steps": [
+        { "event": "a text frame is within size limits but damage prevents bounded safe classification of its payload as either a recognizable control or a known core non-control kind", "expect": ["close the original open WebSocket connection with generic 1008, or discard if already closed", "send no core malformed diagnostic that could continue a damaged control chain", "admit no message and reserve no claimed sender ID", "parsing solely to suppress a response does not establish authentication"] },
+        { "event": "a separate frame has a missing, non-string or unknown kind, or duplicate kind members claiming different values, and cannot safely establish either a recognizable control or a known core non-control classification", "expect": ["use the same binding rejection rather than a recursive core response", "do not choose one duplicate member or guess a work or control meaning"] }
+      ]
+    },
+    {
+      "name": "existing frame-type and size outcomes precede diagnostic classification",
+      "steps": [
+        { "event": "the binding receives a binary message or unsupported frame type", "expect": ["use WebSocket close 1003", "send no core diagnostic"] },
+        { "event": "a separate message exceeds frame-limit", "expect": ["use WebSocket close 1009", "do not parse it unboundedly to recover a kind or correlation", "send no core diagnostic"] }
+      ]
+    },
+    {
+      "name": "a classifiable failed work frame receives only its permitted minimal diagnostic",
+      "steps": [
+        { "event": "an independently assured active route carries a safely classified say frame that fails a verification check and whose syntactically valid ID S can be read without trusting it" },
+        { "event": "the receiver emits the permitted diagnostic", "expect": ["sign a fresh minimal refusal to unverified with no conversation", "use the first failing verification reason and optionally echo S", "send it only over the actual incoming route", "do not accept work or reserve S from the unverified frame", "do not include application content, cached disposition, detail or metadata"] }
+      ]
+    },
+    {
+      "name": "an unreadable correlation is omitted rather than invented",
+      "steps": [
+        { "event": "the input fails a verification check and is safely classifiable as a known non-control kind on a permitted diagnostic route, but its id is missing or not a valid UUID", "expect": ["a permitted minimal diagnostic omits in_response_to", "do not repair the ID or use a current outstanding request as correlation", "the diagnostic establishes no sender message identity or work disposition", "a missing ID alone after successful ordinary verification instead follows ordinary structural failure handling"] }
+      ]
+    },
+    {
+      "name": "untrusted return-route claims cannot redirect a diagnostic",
+      "steps": [
+        { "event": "a failed non-control frame contains a claimed alternate endpoint, principal or conversation for returning its error", "expect": ["do not create audience assurance or a return route from those claims", "send any permitted diagnostic only on its independently authorized incoming route", "if that route fails assurance, use generic binding rejection without a core disposition", "do not disclose a retained-state distinction"] }
+      ]
+    },
+    {
+      "name": "processing stage distinguishes diagnostic malformed from semantic malformed",
+      "steps": [
+        { "event": "on an authorized route, a safely classified work frame fails outer verification with malformed", "expect": ["any permitted core report uses the restricted reserved diagnostic form", "its correlation remains an untrusted echo and supplies no semantic refusal of the original message"] },
+        { "event": "a separate currently authenticated, correctly addressed request reaches semantic checking and violates its declared input contract", "expect": ["use ordinary addressed semantic refusal malformed under existing rules", "do not convert the known semantic disposition into an unverified diagnostic merely because the reason spelling matches"] }
+      ]
+    },
+    {
+      "name": "a diagnostic for a contribution cannot select the independent stop slot",
+      "steps": [
+        { "event": "requester contribution C holds the ordinary slot while separately identified stop T holds its permitted additional slot" },
+        { "event": "valid D uniquely concerns C", "expect": ["stop only C's automatic attempt series", "C's requester slot stays held absent its own confirmation, semantic refusal or authorized release", "T's attempts and slot are unchanged", "do not treat D as completion or cancellation of the turn"] }
+      ]
+    },
+    {
+      "name": "receiving the diagnostic cannot immediately restart the diagnosed attempts",
+      "steps": [
+        { "event": "S's retries were awaiting reachability or incoming authenticated traffic; valid matched D now arrives" },
+        { "event": "D is handled as the verification diagnostic for S", "expect": ["end the identified automatic attempt series", "do not immediately resume that series merely because D itself is an authenticated peer message", "preserve S's unresolved outcome and requester slot rules"] },
+        { "event": "a later reachability event is observed without a deliberate new attempt decision", "expect": ["reachability alone does not restart the diagnostic-ended series", "any deliberate later attempt uses the original exact bytes, ordinary sending-slot rules and a still-applicable scope rather than a new message identity"] }
+      ]
+    },
+    {
+      "name": "diagnostic identity uses its independently resolved original scope",
+      "steps": [
+        { "event": "D1 from B with diagnostic UUID X is accepted and retained for scope C1 on K1, with its own authentication basis and effect on attempted S1" },
+        { "event": "independently established scope C2 on K2 receives a different currently authenticated D2 from B also using diagnostic UUID X, uniquely associated with attempted S2 there", "expect": ["evaluate D2 under C2 and its own original route, not a global unverified-recipient bucket", "the equal UUID in C1 is not by itself a C2 duplicate or conflicting identity", "apply D2's permitted effect only to S2 and preserve D1's retained facts", "never use either rejected frame's claimed signer to determine the diagnostic originator", "send no response to either control"] }
+      ]
+    }
+  ]
+}

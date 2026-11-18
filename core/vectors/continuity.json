@@ -1,0 +1,900 @@
+{
+  "description": "Abstract conformance traces for core/1 continuity and keel.provisioned-context.v1; not executed runtime conformance. Unless explicitly labeled as another selected profile or a general core requirement, cases use the provisioned memory-only profile. C, C1 and C2 denote conversation UUIDs; A is the recorded conversation actor and R or B its requester unless stated otherwise. Distinct symbols denote distinct scoped identities. Otherwise-valid messages satisfy current authentication or eligible exact-copy handling, addressing, structure, action authorization and response-audience requirements. Setup and guard events are observable requirements, not a prescribed wire format, storage representation or test implementation. A generic scope rejection is evaluated before historical disposition lookup and is not a semantic refusal or evidence of past non-execution.",
+  "cases": [
+    {
+      "name": "core conversation traffic requires an explicitly selected usable continuity profile",
+      "steps": [
+        {
+          "event": "Peers share core/1, trust configuration and a reachable WebSocket but have not selected an applicable continuity profile"
+        },
+        {
+          "event": "A participant attempts to start a conversation",
+          "expect": [
+            "withhold conversation sending or reject before semantic handling under an applicable binding policy",
+            "bare core support, a valid certificate and a connection do not establish a context",
+            "do not infer a private setup mechanism from ignorable metadata"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "provisioning establishes an empty context before either endpoint sends",
+      "steps": [
+        {
+          "event": "Both endpoints independently authorize the same trusted facility and select keel.provisioned-context.v1"
+        },
+        {
+          "event": "The actor or its authorized facility allocates fresh C using cryptographically secure UUIDv4 randomness, reserves it for actor A and requester R on actual connection W, and installs matching descriptors and empty contexts"
+        },
+        {
+          "event": "Only A has installed its receive guard and reported ready",
+          "expect": [
+            "neither endpoint is enabled to send conversation frames",
+            "local readiness alone permits no admission",
+            "setup has accepted no request and opened no turn or approval"
+          ]
+        },
+        {
+          "event": "R also validates its descriptor and installs its receive guard; the facility confirms both guards ready",
+          "expect": [
+            "only now may the facility activate guards for admission",
+            "R learns authorized C before signing an opening say or approval"
+          ]
+        },
+        {
+          "event": "The facility activates the first guard",
+          "expect": [
+            "keep both senders disabled until both guards are active"
+          ]
+        },
+        {
+          "event": "The facility activates the second guard",
+          "expect": [
+            "the facility may now enable the senders in ordered steps",
+            "no simultaneous activation or application work is required"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a locally ready guard rejects traffic before bilateral readiness and activation",
+      "steps": [
+        {
+          "event": "A has installed its guard for C and reported local readiness, but the facility has not confirmed both endpoints ready or activated A for admission"
+        },
+        {
+          "event": "An otherwise valid opening say S signed for C arrives prematurely",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "local readiness is not activation or permission to accept S",
+            "failure closes this attempted setup rather than partially admitting work"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a provisioner needs authority from each endpoint",
+      "steps": [
+        {
+          "event": "Facility F is authorized by actor A but has no authority to configure requester R"
+        },
+        {
+          "event": "F attempts to provision both endpoints for one conversation",
+          "expect": [
+            "R rejects setup",
+            "neither endpoint may be enabled to send under an incomplete bilateral setup",
+            "authority over A does not confer authority over R"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "inconsistent or missing descriptors fail setup",
+      "steps": [
+        {
+          "event": "For each independent attempt, the endpoints disagree on the namespace, core profile, continuity profile, participant roles, conversation C or actual connection association, or a required input is absent"
+        },
+        {
+          "event": "The endpoints validate the setup",
+          "expect": [
+            "do not report a completed ready setup",
+            "do not admit conversation traffic",
+            "do not derive the missing association from an untrusted frame"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fresh allocation cannot reuse an arbitrary requester key",
+      "steps": [
+        {
+          "event": "A requester offers its old conversation UUID, a resettable counter-derived UUID or a key determined only by its URL as a fresh allocation"
+        },
+        {
+          "event": "The trusted facility establishes a new scope",
+          "expect": [
+            "allocate C through the required cryptographically secure UUIDv4 procedure instead",
+            "do not deliberately reuse a previous allocation",
+            "regenerate a collision with retained allocations",
+            "no permanent registry of every historical allocation is required"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "setup failure invalidates the allocation rather than partially opening it",
+      "steps": [
+        {
+          "event": "Both endpoints are preparing allocation C but the second endpoint fails readiness or the connection is lost"
+        },
+        {
+          "event": "The facility handles setup failure",
+          "expect": [
+            "invalidate the allocation and any installed guards",
+            "do not enable conversation senders or admit work",
+            "a later setup needs a fresh C on a fresh connection"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "repeated setup cannot reset active state or resurrect retired state",
+      "steps": [
+        {
+          "event": "C is active and contains accepted S and its disposition"
+        },
+        {
+          "event": "The same setup is requested again",
+          "expect": [
+            "at most observe the same still-live setup without mutation",
+            "do not replace its context with empty state or forget S"
+          ]
+        },
+        {
+          "event": "C is retired and an old setup instruction is replayed",
+          "expect": [
+            "do not reenable C",
+            "new setup requires fresh provisioning and a fresh C on a fresh connection"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a connection label is not a trusted channel association",
+      "steps": [
+        {
+          "event": "A descriptor belongs to actual connection W1; W2 has the same URL, endpoint address or reused local connection label"
+        },
+        {
+          "event": "An old frame from W1 is delivered through W2 without fresh authorized setup",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "do not treat the reused label or arrival order as W1"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a missing or preparing scope rejects even a valid initiating frame",
+      "steps": [
+        {
+          "event": "In separate attempts, no scope has been provisioned or allocation C is still preparing"
+        },
+        {
+          "event": "A correctly signed opening say or independent approval arrives",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "scope failure is neither core unknown nor capacity busy"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an unknown signed conversation cannot allocate itself",
+      "steps": [
+        {
+          "event": "Connection W is active only for C1 between A and R"
+        },
+        {
+          "event": "A valid initiating say signed for different C2 arrives on W",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "an empty C2 lookup is not permission to create it"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "authenticated values must match the provisioned scope",
+      "steps": [
+        {
+          "event": "Each independent attempt starts from an active descriptor for namespace N, core/1, actor A, requester R and C"
+        },
+        {
+          "event": "The authenticated message principal, signed recipient or signed conversation disagrees with that descriptor, or trusted delivery selects another namespace or core profile",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "do not borrow another scope's audience assurance or retained authentication basis"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "well-formed scope mismatches differ from missing or malformed addressing",
+      "steps": [
+        {
+          "event": "Each following independent attempt uses its own active independently authorized channel for actor A, requester R and C. The first-seen opening say is signed by R; framing, protected header, current credential, certified key, signature and canonical payload checks pass, and all unstated schema requirements are met."
+        },
+        {
+          "event": "The payload has a well-formed recipient A and a valid UUID C2 different from the configured C",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "the scope mismatch takes precedence over an addressing diagnostic"
+          ]
+        },
+        {
+          "event": "In separate attempts to is absent, to has the wrong JSON type, or the to object omits principal",
+          "expect": [
+            "first-seen verification fails as not-addressed-to-me after the earlier successful checks",
+            "do not report a scope mismatch solely because a selector is missing or malformed",
+            "no scope creation, retained-state disclosure or semantic admission"
+          ]
+        },
+        {
+          "event": "In separate attempts to.principal correctly names A but this conversation say omits to.conversation or gives it a non-UUID value",
+          "expect": [
+            "first-seen verification fails as not-addressed-to-me because required conversation addressing is absent or malformed",
+            "no scope creation, retained-state disclosure or semantic admission"
+          ]
+        },
+        {
+          "event": "The payload correctly names A and C but its to object also contains an unsupported extra member",
+          "expect": [
+            "addressing succeeds, then payload structure fails as malformed",
+            "no semantic admission or scope creation"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "active membership does not replace message authentication or action authorization",
+      "steps": [
+        {
+          "event": "C and its audience route are valid and active"
+        },
+        {
+          "event": "A first-seen frame fails current signature validation",
+          "expect": [
+            "apply the ordinary verification failure rules",
+            "do not accept a message merely because its channel is provisioned"
+          ]
+        },
+        {
+          "event": "A correctly authenticated new message requests an action denied by receiver policy",
+          "expect": [
+            "apply ordinary not-authorized handling",
+            "provisioning supplies no application authority"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reverse-direction approvals preserve the recorded conversation actor",
+      "steps": [
+        {
+          "event": "C records actor A and requester B; both happen to have actor principals and both guards are active"
+        },
+        {
+          "event": "Requester B sends approval P to A; later actor A independently sends approval Q to B",
+          "expect": [
+            "both exchanges remain inside C with A as its recorded conversation actor",
+            "each authenticated originator owns its own approval lifecycle",
+            "direction and message kind do not swap the conversation roles"
+          ]
+        },
+        {
+          "event": "B issues the authorized owner closure of P and A issues the authorized owner closure of Q",
+          "expect": [
+            "apply ordinary closure rules in each direction",
+            "do not allocate a second context from either reverse-direction message"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "distinct conversations between the same principals use distinct keys",
+      "steps": [
+        {
+          "event": "One active scope records actor A and requester B under C1"
+        },
+        {
+          "event": "The same principals establish a separate conversation, including one with actor B and requester A",
+          "expect": [
+            "allocate a different fresh C2 and independently provision its actual connection",
+            "do not reuse C1 or infer roles solely from the message direction"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "closure and stop exceptions require an established scope",
+      "steps": [
+        {
+          "event": "Without valid setup, a closed message for an unseen approval or a prospective stop for an unseen opening arrives",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "the missing-target exception cannot establish the missing scope"
+          ]
+        },
+        {
+          "event": "Separately, the appropriate owner issues an otherwise valid closure or requester issues a prospective stop inside active C with the target still unseen",
+          "expect": [
+            "apply the ordinary scoped closure-marker or stop-suppression rule",
+            "no target request, work turn or prior outcome is reconstructed"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity busy is different from an unavailable scope",
+      "steps": [
+        {
+          "event": "C is active with its complete required state, but cannot accept new say S because of capacity"
+        },
+        {
+          "event": "S arrives",
+          "expect": [
+            "refusal busy for S under ordinary delivery rules",
+            "no acceptance or terminal disposition for S",
+            "busy does not consume a sending attempt"
+          ]
+        },
+        {
+          "event": "Separately, C is not ready or has retired and S arrives",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "do not return busy or unknown as a substitute for scope rejection"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ordinary duplicate and unknown-reference rules apply inside active scope",
+      "steps": [
+        {
+          "event": "C is active; S was accepted and its exact bytes, authentication basis and disposition remain retained"
+        },
+        {
+          "event": "Identical S arrives",
+          "expect": [
+            "normal duplicate acknowledgement",
+            "no second handling of S"
+          ]
+        },
+        {
+          "event": "A fresh currently authenticated contribution names unknown X inside C",
+          "expect": [
+            "refusal unknown for the contribution",
+            "unknown X does not establish a turn or another context"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "turn completion and local slot release do not retire the context",
+      "steps": [
+        {
+          "event": "C is active; S has completed; actor infrastructure releases an unconfirmed notification slot"
+        },
+        {
+          "event": "Otherwise valid late traffic for S arrives while the required context remains retained",
+          "expect": [
+            "apply ordinary terminal-state and notification rules",
+            "neither result receipt nor slot release implicitly ended C",
+            "do not discard duplicate or authentication facts merely because no turn is open"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "policy retirement fences admission before required state is discarded",
+      "steps": [
+        {
+          "event": "Infrastructure elects to retire active C under its applicable lifetime policy"
+        },
+        {
+          "event": "Retirement is enacted",
+          "expect": [
+            "invalidate the local guard before discarding required state or installing replacement state",
+            "disable outgoing conversation traffic and close its connection",
+            "do not claim a promised longer lifetime remains in force"
+          ]
+        },
+        {
+          "event": "An old frame for C then reaches the retired guard",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "no per-retired-conversation tombstone is needed when the invalidated guard and fresh allocation boundary enforce rejection"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "receiver state loss cannot turn an old opening into fresh work",
+      "steps": [
+        {
+          "event": "Actor A accepted opening S in C; its reply was lost; requester R retains exact S"
+        },
+        {
+          "event": "A detects loss of C's required state",
+          "expect": [
+            "retire the local guard and close its connection before further admission",
+            "do not reconstruct empty state under the old guard"
+          ]
+        },
+        {
+          "event": "An in-flight copy of S reaches A after the loss",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "do not execute S a second time as a fresh request",
+            "the rejection does not prove whether S's earlier effects occurred"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "requester state loss also ends its local admission scope",
+      "steps": [
+        {
+          "event": "Actor A retains C and result R for S, but requester B detects loss of its issued-request and reference state"
+        },
+        {
+          "event": "B handles the loss",
+          "expect": [
+            "retire B's guard before any replacement state can receive old notifications",
+            "disable outgoing conversation traffic and close its connection"
+          ]
+        },
+        {
+          "event": "An old result, question or approval for C reaches B's retired guard",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "A's retained half cannot recreate B's context"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "remote loss detection is not instantaneous",
+      "steps": [
+        {
+          "event": "Requester B retires its local C after state loss; actor A has not yet observed the connection failure and still retains its complete active C"
+        },
+        {
+          "event": "A previously sent frame from B is admitted by A before A learns of the failure",
+          "expect": [
+            "ordinary admission into A's still-valid original C is permitted",
+            "do not claim the lost requester received the resulting acknowledgement or result",
+            "do not create or substitute replacement state"
+          ]
+        },
+        {
+          "event": "A detects the connection failure",
+          "expect": [
+            "retire A's local guard and disable further conversation traffic"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "backend replacement cannot borrow a surviving frontend socket",
+      "steps": [
+        {
+          "event": "A trusted proxy keeps connection W open while the backend context for C is lost or replaced"
+        },
+        {
+          "event": "The adapter observes the defined backend failure event",
+          "expect": [
+            "invalidate the scope before a frame can enter replacement state",
+            "close the associated connection and disable conversation traffic",
+            "the open frontend socket is insufficient evidence of continuity"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stale signed bytes fail on a freshly provisioned channel",
+      "steps": [
+        {
+          "event": "C1 ended; new connection W2 is correctly provisioned for fresh C2; all old C1 history may have been discarded"
+        },
+        {
+          "event": "An adapter forwards old compact JWS S whose signed conversation remains C1 onto W2",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "C1 and C2 mismatch without needing an old message or tombstone lookup",
+            "do not relabel the old frame into C2"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "queued frames retain the guard that originally received them",
+      "steps": [
+        {
+          "event": "S for C1 is queued under guard G1; before semantic admission G1 retires and a new connection label is reused for C2 under G2"
+        },
+        {
+          "event": "The queued callback runs",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "check its captured G1 association",
+            "do not look up G2 by the reused label and admit S into C2",
+            "any rejection or close belongs to G1's original channel if still available; do not close or send feedback on G2"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "retirement between receipt and admission defeats a prior successful check",
+      "steps": [
+        {
+          "event": "S passes receipt-time scope and message checks while G is active"
+        },
+        {
+          "event": "Retirement is ordered before S's semantic admission"
+        },
+        {
+          "event": "S reaches its admission decision",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "a successful earlier scope observation does not authorize later admission",
+            "no new acceptance or effect is attributed to this attempt"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "admission before retirement remains a historical fact",
+      "steps": [
+        {
+          "event": "S is fully admitted under active G before retirement is ordered; an external operation may already have begun"
+        },
+        {
+          "event": "G retires and the connection closes",
+          "expect": [
+            "do not undo or relabel S's historical acceptance",
+            "do not manufacture a stopped result, job cancellation, approval withdrawal or grant revocation",
+            "already admitted effects may have occurred or may continue under their application contract"
+          ]
+        },
+        {
+          "event": "An old copy of S reaches a retired or fresh mismatching scope",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "do not restart S by admitting its old frame into empty replacement state"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "live retention cannot selectively discard duplicate or authentication facts",
+      "steps": [
+        {
+          "event": "C is active with accepted approval P and its trusted exact-message basis; P's original certificate has expired"
+        },
+        {
+          "event": "Infrastructure needs to reclaim the state required for P",
+          "expect": [
+            "retain it while continuing to claim C is active, or genuinely retire the defined scope before discarding it",
+            "do not selectively erase P and force its exact retry through first-seen expiry rules"
+          ]
+        },
+        {
+          "event": "Separately, exact P arrives while C and the full eligible basis remain active and authorized",
+          "expect": [
+            "apply the P04 exact retained-copy rule",
+            "return only permitted minimal disposition feedback",
+            "do not reopen P or require renewal of the immutable original request"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invalid-scope rejection is uniform before historical disposition lookup",
+      "steps": [
+        {
+          "event": "In independent attempts, an old frame reaches a missing, not-ready, retired or mismatching scope; the receiver may retain an accepted copy, retain a refused copy, or have no copy, and the certificate may be current or expired"
+        },
+        {
+          "event": "The binding handles each attempt",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "do not distinguish retained hits from misses by returning an ack, refusal reason or certificate-expired status",
+            "perform the audience and scope guard before selecting state-dependent feedback",
+            "do not claim constant-time processing or concealment of every timing side channel"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "retirement does not erase retained facts or provide an old-scope feedback lane",
+      "steps": [
+        {
+          "event": "C is retired but a trusted historical record of accepted S remains locally available"
+        },
+        {
+          "event": "A copy of S is presented on an old or newly provisioned conversation channel",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "preserve S's retained historical disposition",
+            "this provisioned profile provides no old-scope feedback route"
+          ]
+        },
+        {
+          "event": "An independently authorized inspection contract permits reading the historical record",
+          "expect": [
+            "report only what that separate contract and evidence basis authorize",
+            "inspection does not reopen C or create a core recovery API"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "audience authorization still precedes disposition feedback in active scope",
+      "steps": [
+        {
+          "event": "C's local context remains retained but its provisioned route authority is lost"
+        },
+        {
+          "event": "An exact retained accepted frame arrives",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame",
+            "retire the provisioned guard on loss of authorization",
+            "do not reveal an acceptance through a minimal control",
+            "keep historical facts intact wherever retained"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a reconnect requires fresh provisioning and does not forward the old outbox",
+      "steps": [
+        {
+          "event": "C1 loses its connection; the requester retains original signed outbox items and unfinished application drafts"
+        },
+        {
+          "event": "A new connection W2 opens",
+          "expect": [
+            "W2 has no authority to resume C1",
+            "establish fresh C2 through the full provisioning procedure before new conversation traffic",
+            "do not automatically forward the old outbox",
+            "preserve drafts and uncertainty about earlier work"
+          ]
+        },
+        {
+          "event": "Infrastructure considers rewriting C1 to C2 or re-signing the same messages under their old IDs",
+          "expect": [
+            "do not mutate or re-sign the original messages to cross the scope boundary",
+            "local retention of bytes is not continuation evidence"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "new credentials and earlier acknowledgements do not renew a retired scope",
+      "steps": [
+        {
+          "event": "C has retired; a peer retains S, ack S and a renewed certificate for the same principal and key"
+        },
+        {
+          "event": "The peer considers resuming S",
+          "expect": [
+            "none of the renewed credential, prior ack, prior result, outbox or history page establishes current continuation",
+            "do not resume C under keel.provisioned-context.v1",
+            "retain the fact established by ack S without inferring completion"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fresh message and conversation IDs do not authorize repeating uncertain work",
+      "steps": [
+        {
+          "event": "Old request S may already have launched application job J before C1 ended"
+        },
+        {
+          "event": "Fresh C2 is established and the requester prepares a new message S2 with a fresh ID for the same uncertain action",
+          "expect": [
+            "fresh identifiers alone do not authorize automatic resubmission",
+            "reconcile J or obtain a new authorized application request under its own contract",
+            "no protocol guarantee of exactly-once external effects follows from C2"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unknown old IDs remain unknown in a genuinely new established scope",
+      "steps": [
+        {
+          "event": "C1 ended; C2 is fully provisioned; C2 has no opening S or approval P from C1"
+        },
+        {
+          "event": "A separately authorized new contribution X is freshly signed for C2 and references S, or a new decision D is freshly signed for C2 and references P",
+          "expect": [
+            "ordinary refusal unknown for the new message",
+            "do not reconstruct C1 or transplant its old message identities",
+            "this differs from an original C1 frame, which fails the C2 admission guard"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fresh scoped prospective markers do not restore old state",
+      "steps": [
+        {
+          "event": "C1 ended; C2 is active with no message named S or P"
+        },
+        {
+          "event": "A separately authorized new stop T signed for C2 targets unseen opening ID S",
+          "expect": [
+            "apply ordinary prospective suppression within C2 only",
+            "do not cancel or establish any work from C1"
+          ]
+        },
+        {
+          "event": "A separately authorized new owner closure K signed for C2 names unseen approval ID P",
+          "expect": [
+            "apply ordinary scoped closure-marker rules within C2 only",
+            "do not restore, withdraw or decide any approval from C1"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "retained-context reconnect requires a different explicitly selected profile",
+      "steps": [
+        {
+          "event": "Both participants selected a precisely specified other continuity profile that allows reconnection to positively retained context C and defines its admission, authorization and failure boundary"
+        },
+        {
+          "event": "A new connection is authorized under that profile and both endpoints establish the required retained interpretation before ingress",
+          "expect": [
+            "that selected profile may permit continuation of C",
+            "ordinary exact duplicate and terminal-state rules continue to apply",
+            "do not claim this is an optional mode of keel.provisioned-context.v1"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "restoration must be complete before resumed ingress is enabled",
+      "steps": [
+        {
+          "event": "A separately selected recovery-capable profile explicitly guarantees restoration of C; ingress is disabled during restoration"
+        },
+        {
+          "event": "Only some historical messages or a still-valid reconnect token are available",
+          "expect": [
+            "keep resumed admission disabled",
+            "a token or partial archive cannot recreate missing interpretation"
+          ]
+        },
+        {
+          "event": "The profile restores and validates the exact-message authentication/dispositions, selected response contracts, approvals, reference meanings and required notification facts, and reestablishes authorized guards",
+          "expect": [
+            "only then may its defined ingress reopening procedure enable continuation",
+            "an exact retry uses the restored disposition rather than new execution",
+            "core requires no such restart capability"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "switching profile labels alone cannot establish continuation",
+      "steps": [
+        {
+          "event": "C was provisioned under keel.provisioned-context.v1 and its connection ended"
+        },
+        {
+          "event": "A participant changes a local profile label to a purported recovery mode without an independently specified applicable guarantee and restored basis",
+          "expect": [
+            "do not resume C",
+            "do not mutate existing signed messages or infer continuity from the label",
+            "establish a genuinely fresh scope if continuation cannot be established"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "actor-level description can use a separately authorized connection",
+      "steps": [
+        {
+          "event": "No conversation is provisioned; an actor-level connection has independent route assurance and permission for ordinary non-conversation describe traffic"
+        },
+        {
+          "event": "Requester sends describe D and receives the requested actor's valid description naming D",
+          "expect": [
+            "apply ordinary actor-level addressing, dedup-window and confirmation rules",
+            "the description may confirm D in that non-conversation scope",
+            "do not allocate a conversation key, open a turn or establish continuity"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "actor-level traffic may be explicitly segregated on a provisioned connection",
+      "steps": [
+        {
+          "event": "Active conversation C and independently authorized actor-level traffic share W under explicit adapter segregation"
+        },
+        {
+          "event": "An actor-level describe, description or its correctly scoped control arrives without a conversation",
+          "expect": [
+            "apply its actor-level scope and dedup-window rules",
+            "do not interpret it as an input or confirmation in C"
+          ]
+        },
+        {
+          "event": "A diagnostic control or actor-level reply is offered as evidence that C exists or survived",
+          "expect": [
+            "do not treat it as setup, resumption or continuity evidence",
+            "preserve the existing reserved-recipient and confirmation restrictions"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "base framing rejection remains distinct from continuity rejection",
+      "steps": [
+        {
+          "event": "In independent deliveries a binary frame or a frame exceeding the configured frame-limit arrives"
+        },
+        {
+          "event": "The WebSocket binding handles the framing violation",
+          "expect": [
+            "binary or invalid frame type closes with code 1003",
+            "an oversized frame closes with code 1009",
+            "the generic invalid-scope code does not replace these bounded framing rules"
+          ]
+        }
+      ]
+    }
+  ]
+}

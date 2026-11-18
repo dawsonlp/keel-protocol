@@ -1,0 +1,275 @@
+{
+  "description": "Required core approval-exchange and request-closure behavior within a retained live context. Unless a case says otherwise, messages pass verification, authorization, and structural checks, and sending slots are resolved before later messages are sent. O is an approval originator, A its intended authority peer, P an approval request, D a decision, and K a closure. Their labels stand for message or principal identities, not wire values. The cases require semantic checking and do not establish implementation conformance or restart guarantees. Unless a step states otherwise, conversation traffic uses an explicitly selected applicable continuity profile with valid authorized guards and retained required context at admission; stale traffic from an ended scope is rejected at that boundary before ordinary correlation or disposition handling.",
+  "cases": [
+    {
+      "name": "an actor requester initiates an independent approval exchange",
+      "steps": [
+        { "event": "executor O creates conversation C with authority actor A and sends approval P as its first message, without in_response_to, describing the exact action, deadline, and bound_required true", "expect": ["P can initiate the exchange without say, taken, or an open turn", "O owns P's pending state and deadline", "the conversation remains identified by A and C in both directions"] },
+        { "event": "A accepts P", "expect": ["ack P", "no permission is established by the acknowledgement"] },
+        { "event": "A sends signed decide D naming P, with approve true and the digest of P's exact signed bytes; O accepts it while P is pending before its deadline", "expect": ["ack D", "O retains one accepted decision", "O emits closed K naming P with why decided", "no result or work turn is created for P"] },
+        { "event": "A accepts K", "expect": ["ack K", "the approval exchange is closed", "closure does not establish execution of the authorized action", "O need not await ack K to use the accepted permission under its application contract"] }
+      ]
+    },
+    {
+      "name": "approval ownership is independent of principal kind and conversation role",
+      "steps": [
+        { "event": "party requester O originates P toward actor A without an open turn; A's valid decision is accepted by O", "expect": ["O acknowledges the decision and emits closed decided", "party identity does not exclude approval lifecycle ownership"] },
+        { "event": "in a separate conversation, answering actor O originates approval Q toward its requester, which may be a party or actor; the valid decision is accepted by O", "expect": ["O acknowledges the decision and emits closed decided", "the same originator-owned lifecycle applies in the opposite conversation direction"] }
+      ]
+    },
+    {
+      "name": "several approvals can remain pending independently of a work turn",
+      "steps": [
+        { "event": "turn S is open; independently identified approvals P and Q are accepted and acknowledged in the same conversation", "expect": ["P and Q do not join or consume S's response obligation", "each approval retains its own originator, deadline, and disposition", "acknowledged pending approvals do not keep their message delivery slots occupied"] },
+        { "event": "P receives an accepted decision", "expect": ["P closes as decided", "Q remains pending", "S remains open until its own result or targeted stop"] }
+      ]
+    },
+    {
+      "name": "denial is a decision and not automatically a work result",
+      "steps": [
+        { "event": "O has pending P and an application operation whose work may depend on permission" },
+        { "event": "an authorized bound decide D with approve false is accepted before P's deadline", "expect": ["ack D", "closed for P with why decided", "P's accepted decision records denial", "closed decided alone does not mean permission was granted", "the application operation determines its work outcome; no automatic terminal result is created by the approval exchange"] }
+      ]
+    },
+    {
+      "name": "originator expiry wins over an earlier sent but later received decision",
+      "steps": [
+        { "event": "A sends a correctly bound decision D before P's stated deadline; transport delays D" },
+        { "event": "O's deadline passes while P is pending", "expect": ["O records P as expired", "O emits closed naming P with why expired", "no permission is accepted for P"] },
+        { "event": "D arrives after O has expired P", "expect": ["refusal closed for D", "D's sent_at does not reopen P", "P remains expired"] }
+      ]
+    },
+    {
+      "name": "accepted decisions are stable and deadline expiry is not grant expiry",
+      "steps": [
+        { "event": "O accepts valid grant D while P is pending before its deadline", "expect": ["ack D", "retain D as P's accepted decision", "closed for P with why decided"] },
+        { "event": "P's decision deadline later passes or O's work is abandoned", "expect": ["P remains decided", "no expired or withdrawn transition replaces the accepted decision", "withdrawing a request cannot revoke its already accepted grant", "the authorization contract determines permitted use and grant validity; P's decision deadline is not automatically grant expiry"] },
+        { "event": "an identical D arrives again, followed by a different decision D2 for P", "expect": ["duplicate acknowledgement for D without another decision", "refusal closed for D2", "accepted D remains unchanged"] }
+      ]
+    },
+    {
+      "name": "only the originator determines approval expiry",
+      "steps": [
+        { "event": "A's local clock has passed P's advertised deadline, but A has received no owner closure", "expect": ["A's clock does not establish O's terminal disposition", "A cannot issue closed expired as P's owner", "no authority or execution outcome is inferred from the missing closure"] },
+        { "event": "O's authenticated closed expired arrives", "expect": ["ack the closure", "retain P as expired", "do not solicit or apply a new decision for P"] }
+      ]
+    },
+    {
+      "name": "work termination does not implicitly withdraw an approval",
+      "steps": [
+        { "event": "O has pending approval P correlated to work turn S by in_response_to or caused_by; S completes or is stopped", "expect": ["S's closure does not itself close P", "correlation does not create approval lifecycle ownership or a cancellation dependency", "P does not move to a newer work turn"] },
+        { "event": "O's application policy explicitly withdraws pending P because the work is abandoned", "expect": ["O records P as withdrawn and emits closed withdrawn", "a later new decision for P is refused closed", "an already accepted grant could not have been changed by this withdrawal"] }
+      ]
+    },
+    {
+      "name": "a delayed correlated approval remains an independent exchange",
+      "steps": [
+        { "event": "O sends P with in_response_to naming known turn S; S closes and newer turn N opens before P arrives; no closure for P was issued" },
+        { "event": "P arrives", "expect": ["P is handled as its own approval exchange", "the correlation to known S is not an instruction to join N or reopen S", "N's response obligation and completion are unchanged"] },
+        { "event": "a separate new approval Q carries an unknown in_response_to reference", "expect": ["refusal unknown for Q under ordinary correlation rules", "a sender initiating an uncorrelated exchange can omit in_response_to instead"] }
+      ]
+    },
+    {
+      "name": "decision authority and exact request binding are checked before acceptance",
+      "steps": [
+        {
+          "event": "P is pending with bound_required true; a decision from the configured authority peer passes scope and authentication checks but current action policy does not authorize that peer to decide P",
+          "expect": [
+            "refusal not-authorized",
+            "no accepted decision or closure of P"
+          ]
+        },
+        {
+          "event": "an authorized decision names P with the wrong digest",
+          "expect": [
+            "refusal wrong-request",
+            "P remains pending"
+          ]
+        },
+        {
+          "event": "an authorized decision names P without its required digest",
+          "expect": [
+            "refusal unbound-decision",
+            "P remains pending"
+          ]
+        },
+        {
+          "event": "a new authorized decision with matching binding is accepted before P expires",
+          "expect": [
+            "ack the decision",
+            "one accepted decision and owner-issued closed decided"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "decisions cannot create approvals or target other message kinds",
+      "steps": [
+        { "event": "a decision names an approval identity absent from the originator's retained context", "expect": ["refusal unknown", "no reconstruction of an approval or grant"] },
+        { "event": "a decision names a known question or opening say instead of an approval", "expect": ["refusal malformed", "no inferred approval from the target or its turn"] },
+        { "event": "a new decision names a known expired or withdrawn approval", "expect": ["refusal closed", "no reopening or acceptance of permission"] }
+      ]
+    },
+    {
+      "name": "known request closure requires its authenticated originator and compatible reason",
+      "steps": [
+        {
+          "event": "P is a known approval from O and Q is a known question from its actor originator"
+        },
+        {
+          "event": "In each target's valid conversation, its non-owning configured peer sends closed back to the request originator for P or Q; the signed participants and conversation match the receiving guard",
+          "expect": [
+            "refusal not-authorized",
+            "no change to the target's lifecycle"
+          ]
+        },
+        {
+          "event": "O sends closed answered for P, or Q's owner sends closed decided for Q",
+          "expect": [
+            "refusal malformed for the incompatible closure",
+            "no change to the target's lifecycle"
+          ]
+        },
+        {
+          "event": "an otherwise authorized closed names a known say, result, or other non-request message",
+          "expect": [
+            "refusal malformed",
+            "no inferred closure of its turn"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an approval closure overtaking its request prevents later admission",
+      "steps": [
+        { "event": "O sends P, but its delivery remains unconfirmed; O withdraws P locally and explicitly releases P's sending slot before sending closed K with why withdrawn" },
+        { "event": "K reaches A before P", "expect": ["ack K", "retain a provisional terminal marker scoped to this conversation, authenticated originator O, peer, and P's ID", "no approval, turn, decision, or grant is reconstructed"] },
+        { "event": "otherwise valid P from O to the same peer arrives", "expect": ["ack P", "retain P already closed as withdrawn", "never open or present P for decision", "no new work or permission follows from the delayed request"] },
+        { "event": "identical P arrives again", "expect": ["duplicate acknowledgement", "P remains closed"] }
+      ]
+    },
+    {
+      "name": "a question closure overtaking its request prevents a stale prompt",
+      "steps": [
+        { "event": "actor O's question Q is delayed; its notification attempts exhaust and its slot is released; O sends closed expired for Q" },
+        { "event": "the requester receives the closure first", "expect": ["ack the closure", "retain a scoped provisional closure for Q", "do not reconstruct Q or its turn"] },
+        { "event": "otherwise valid Q arrives from O", "expect": ["ack Q", "retain Q already expired", "do not present Q as answerable or reopen its turn"] }
+      ]
+    },
+    {
+      "name": "provisional closure is scoped and rejects incompatible later targets",
+      "steps": [
+        { "event": "a valid owner-issued closed decided for unseen P has established a marker" },
+        { "event": "the same originator supplies P in the same scope as a question or an opening say", "expect": ["refusal malformed because the asserted closure and target kind are incompatible", "no new actionable request or work starts for that conflicting target", "the retained closure is not silently discarded"] },
+        { "event": "a request is evaluated in another conversation or under a different authenticated originator or peer", "expect": ["this marker has no authority over that request", "apply that request's ordinary validation and context rules", "no cancellation inferred solely from an equal unscoped ID"] }
+      ]
+    },
+    {
+      "name": "closure duplicates are harmless and contradictory terminal reports are refused",
+      "steps": [
+        { "event": "a receiver accepts owner-issued closed K for P with why withdrawn" },
+        { "event": "identical K is delivered again", "expect": ["duplicate acknowledgement", "no second terminal transition"] },
+        { "event": "the same owner sends a new closure ID reporting P as withdrawn", "expect": ["ack the new closure", "preserve the same terminal disposition"] },
+        { "event": "the same owner sends a new closure reporting P as decided or expired", "expect": ["refusal malformed", "the original withdrawn disposition remains authoritative"] }
+      ]
+    },
+    {
+      "name": "closure is not a grant and sending a decision is not its acceptance",
+      "steps": [
+        { "event": "A sends grant D for P but receives no acknowledgement or other evidence establishing acceptance", "expect": ["A cannot claim that O accepted D or executed the action"] },
+        { "event": "in a separate exchange, an authorized owner closure with why decided arrives before the request or decision details are available", "expect": ["retain the closure without reconstructing a grant", "closed decided does not disclose approve true or false", "no claim about which decision was accepted or whether the action executed"] }
+      ]
+    },
+    {
+      "name": "expiry and withdrawal do not create a delivery-slot bypass",
+      "steps": [
+        { "event": "O's P is pending while an ordinary message from O occupies its sending slot; P expires locally", "expect": ["P becomes expired at O without waiting for closure delivery", "closed expired follows ordinary sending-slot rules", "there is no additional control slot for approval closure"] },
+        { "event": "a decision reaches O before its queued closure can be delivered", "expect": ["refusal closed", "lack of delivered closure does not reopen locally expired P"] },
+        { "event": "the held sending slot is acknowledged, terminally refused, or explicitly released", "expect": ["the closure can be sent under ordinary delivery rules", "explicit release does not establish non-delivery of the earlier message"] }
+      ]
+    },
+    {
+      "name": "closure from an unauthorized sender cannot reserve an unseen request identity",
+      "steps": [
+        { "event": "a closed message names unseen P, but verification or authorization for that sender and conversation fails", "expect": ["the applicable verification or authorization refusal", "no prospective terminal marker for P", "no authority inferred from knowledge of P's identity"] },
+        { "event": "a valid P subsequently arrives", "expect": ["the failed closure attempt does not affect P's admission", "apply P's ordinary exchange rules"] }
+      ]
+    },
+    {
+      "name": "the deadline is checked at acceptance even before an expiry callback runs",
+      "steps": [
+        { "event": "P remains marked pending because its expiry callback has not run; a valid authorized decision arrives at or after the deadline on O's current clock" },
+        { "event": "O processes the decision", "expect": ["compare O's current clock with P's deadline", "P becomes expired", "refusal closed for the decision", "O issues closed expired", "a stale pending flag cannot admit permission after the deadline"] }
+      ]
+    },
+    {
+      "name": "an unconfirmed outgoing decision does not prevent a valid owner expiry",
+      "steps": [
+        { "event": "A has sent granting decision D but received no evidence that O accepted it" },
+        { "event": "A receives authenticated owner-issued closed expired for P", "expect": ["ack the closure", "P is retained as expired", "A's earlier act of sending D is not a conflicting accepted decision"] },
+        { "event": "in a separate retained exchange, acceptance of a granting decision was already confirmed; the owner reports a contradictory expired closure", "expect": ["refusal malformed for the contradictory closure", "preserve the accepted decision and its decided disposition", "no revocation inferred from request expiry"] }
+      ]
+    },
+    {
+      "name": "retaining another participant's approval does not confer originator ownership",
+      "steps": [
+        {
+          "event": "authority A has received and retained approval P originated by O in their conversation"
+        },
+        {
+          "event": "Originator O sends a structurally valid decision addressed to A referencing P in their active conversation; the message passes its participant and scope guard",
+          "expect": [
+            "refusal not-authorized because A did not originate P",
+            "A cannot accept a decision or issue owner closure for P",
+            "P's originator O remains responsible for decision acceptance"
+          ]
+        },
+        {
+          "event": "Separately, a new decision is signed for and reaches O in a different properly established active conversation where P is unknown",
+          "expect": [
+            "refusal unknown",
+            "no cross-conversation lookup or ownership inferred solely from P's ID"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "bilateral exchanges preserve conversation identity and require unambiguous keys",
+      "steps": [
+        { "event": "A is requester in an existing B-owned conversation with key C and now wants a separate A-owned conversation with requester B", "expect": ["the new conversation must use a different fresh key", "reversing roles does not change the actor identity of existing C"] },
+        { "event": "an approval or owner-issued closure in C arrives from either participant", "expect": ["resolve the authenticated peer and key to the existing context", "use its recorded conversation actor B", "do not infer a new A-owned context from message kind or direction"] },
+        { "event": "a receiver detects conflicting retained contexts for the same peer and key", "expect": ["refusal malformed before applying the message", "no choice based on current turn or transport connection", "no claim that a first-frame key collision is always detectable from the payload"] }
+      ]
+    },
+    {
+      "name": "independent approval state has only the core live-context lifetime",
+      "steps": [
+        {
+          "event": "O had pending or decided P, or A retained a closure-before-request marker, and the required state in provisioned C1 is lost",
+          "expect": [
+            "invalidate the local admission guard before replacement state or further admission",
+            "core requires no restoration of the approval, accepted decision or closure marker",
+            "state loss proves neither permission nor non-execution",
+            "no automatic replay or resubmission is assumed safe"
+          ]
+        },
+        {
+          "event": "An original decision signed for C1 reaches the retired guard or a fresh C2 channel",
+          "expect": [
+            "generic binding rejection: close the original associated connection with WebSocket code 1008 if still open, otherwise discard without response; no identifying close-reason details",
+            "no core disposition, new semantic handling or reservation of the presented message ID",
+            "do not create or recreate a conversation from the frame"
+          ]
+        },
+        {
+          "event": "A separately authorized new decision signed for properly established C2 names P, which C2 does not retain",
+          "expect": [
+            "refusal unknown",
+            "no recreation of P or C1 from the decision",
+            "same-scope restoration requires another explicitly applicable profile and complete restored basis before ingress"
+          ]
+        }
+      ]
+    }
+  ]
+}

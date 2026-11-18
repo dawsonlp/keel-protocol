@@ -1,0 +1,1571 @@
+{
+  "description": "Required core first-delivery notification and progress-replacement behavior. Abstract protocol traces, not executed implementation conformance. Except where a step states otherwise, messages pass current authentication, authorization, payload structure, scoped identity, and response-audience checks; the receiver can accept them and retains the applicable live context. S and N are issued untargeted opening say messages and also denote their turn identities. Distinct message symbols denote distinct scoped message IDs unless explicitly stated; notifications come from the conversation actor and are addressed to its requester. A receipt adds observed facts rather than repeating the actor transition. An ack here confirms handling of a notification, not that its reported turn or question is currently open. Infrastructure chooses storage, presentation, dispatch, and stronger guarantees; these traces require none of those mechanisms. Unless a step states otherwise, conversation traffic uses an explicitly selected applicable continuity profile with valid authorized guards and retained required context at admission; stale traffic from an ended scope is rejected at that boundary before ordinary correlation or disposition handling.",
+  "cases": [
+    {
+      "name": "a result can precede taken for a known eligible opening",
+      "steps": [
+        {
+          "event": "The requester retains its issued untargeted say S and selected response contract in the live context; no taken or incompatible disposition for S is known"
+        },
+        {
+          "event": "First result R names S and satisfies its terminal response contract",
+          "expect": [
+            "ack R",
+            "establish S's terminal result R without reconstructing a missing taken",
+            "do not wait for replay or taken"
+          ]
+        },
+        {
+          "event": "First taken T names S as new-turn with turn S",
+          "expect": [
+            "ack T",
+            "retain the consistent historical admission fact",
+            "S remains terminal under R"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "question and progress can precede taken",
+      "steps": [
+        {
+          "event": "The requester retains eligible opening S with no terminal or incompatible disposition; taken for S has not arrived"
+        },
+        {
+          "event": "First question Q names S",
+          "expect": [
+            "ack Q",
+            "Q can be answered under S's question lifecycle without waiting for taken",
+            "Q reports an actor transition, not proof that Q is still open at the actor now"
+          ]
+        },
+        {
+          "event": "First progress P names S",
+          "expect": [
+            "ack P",
+            "associate provisional information with S",
+            "do not infer an unobserved current actor state"
+          ]
+        },
+        {
+          "event": "First taken T names S as new-turn with turn S",
+          "expect": [
+            "ack T",
+            "retain compatible admission evidence without starting another turn"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "positive input admissions establish the turn before its opening taken arrives",
+      "steps": [
+        {
+          "event": "The requester retains eligible opening S and issued contribution C naming S; no notification establishing S's opening has arrived"
+        },
+        {
+          "event": "First taken TC names C as added-to-turn with turn S",
+          "expect": [
+            "ack TC",
+            "establish that S opened and C was admitted",
+            "do not invent or wait for the missing taken for S"
+          ]
+        },
+        {
+          "event": "First taken T0 names S as not-acted-on without turn",
+          "expect": [
+            "refusal malformed for T0",
+            "preserve the established opening and contribution admission facts"
+          ]
+        },
+        {
+          "event": "First valid question Q names S and is accepted; the requester then issues answer A naming Q",
+          "expect": [
+            "ack Q",
+            "retain Q and the exact targeted answer A"
+          ]
+        },
+        {
+          "event": "First taken TA names A as answer with question Q and turn S, still before any compatible taken for S",
+          "expect": [
+            "ack TA",
+            "retain A's admission and Q's answered meaning"
+          ]
+        },
+        {
+          "event": "First taken TS names S as new-turn with turn S",
+          "expect": [
+            "ack TS",
+            "retain compatible opening evidence without another turn transition"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a late question does not reopen a terminal turn",
+      "steps": [
+        {
+          "event": "Eligible S has accepted terminal result R; question Q for S has not previously arrived"
+        },
+        {
+          "event": "First otherwise valid Q arrives naming S",
+          "expect": [
+            "ack Q",
+            "retain Q as a historical question of S",
+            "Q cannot acquire a new accepted answer in that terminated lifecycle",
+            "do not reopen S or fabricate an owner-issued closure reason"
+          ]
+        },
+        {
+          "event": "A new answer A naming Q is sent despite the requester's terminal knowledge and reaches the actor, which retains S's completion",
+          "expect": [
+            "refusal closed for A",
+            "no new work or answer admission under S"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a turn result makes an observed question terminal without inventing its reason",
+      "steps": [
+        {
+          "event": "Eligible S has accepted question Q and no owner-issued closed for Q; the requester issued answer A naming Q before the actor completed S"
+        },
+        {
+          "event": "First result R names S",
+          "expect": [
+            "ack R",
+            "Q is no longer open in the protocol lifecycle",
+            "Q's precise owner-reported closure reason remains unknown"
+          ]
+        },
+        {
+          "event": "First owner closed C names Q with why answered",
+          "expect": [
+            "ack C",
+            "retain answered as Q's authoritative reason",
+            "do not reject C because the result was locally interpreted as withdrawal",
+            "S remains terminal"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an expired owner closure can refine a late question after the result",
+      "steps": [
+        {
+          "event": "The requester retains eligible S and its accepted result R but has not received Q or a closure for Q"
+        },
+        {
+          "event": "First question Q names S",
+          "expect": [
+            "ack Q",
+            "Q is terminal in S's lifecycle with no fabricated specific reason"
+          ]
+        },
+        {
+          "event": "First owner closed C names Q with why expired, consistently reporting expiry before S completed",
+          "expect": [
+            "ack C",
+            "record expired as the authoritative reason",
+            "no reopening or new answer admission"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "owner closure overtaking a question remains authoritative",
+      "steps": [
+        {
+          "event": "The requester retains eligible S and its result R; Q is still unseen"
+        },
+        {
+          "event": "Owner closed C names unseen Q with why answered and satisfies the existing scoped closure-before-request rules",
+          "expect": [
+            "ack C",
+            "retain the owner closure marker without creating Q"
+          ]
+        },
+        {
+          "event": "First otherwise valid question Q arrives naming S",
+          "expect": [
+            "ack Q",
+            "Q is terminal with the previously reported answered reason",
+            "do not create a new answerable exchange"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an owner closure marker permits a closed question whose parent is absent",
+      "steps": [
+        {
+          "event": "The receiver retains a scoped authorized owner closed C for unseen Q with why expired under the closure-before-request rules; opening S is absent from live context and no known parent contradiction exists"
+        },
+        {
+          "event": "First otherwise valid question Q names the absent S",
+          "expect": [
+            "ack Q under the existing owner-closure exception",
+            "retain Q already closed with the owner's expired reason",
+            "do not reconstruct S or make Q actionable",
+            "Q does not confirm acceptance of an absent opening S or fabricate a received ack for S"
+          ]
+        },
+        {
+          "event": "First progress P names the same absent S without another applicable exception",
+          "expect": [
+            "refusal unknown for P",
+            "the closure marker did not create S or waive ordinary progress correlation"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an owner closure marker does not waive a known incompatible parent",
+      "steps": [
+        {
+          "event": "The requester retains S with taken not-acted-on, eligible N with contribution C targeting N, and authorized closure markers for unseen Q1 and Q2, each with why expired"
+        },
+        {
+          "event": "First question Q1 names S",
+          "expect": [
+            "refusal malformed for Q1",
+            "the marker does not override S's established not-acted-on disposition",
+            "retain the owner closure marker without creating a turn"
+          ]
+        },
+        {
+          "event": "First question Q2 names contribution C as its parent turn",
+          "expect": [
+            "refusal malformed for Q2",
+            "the marker does not turn a known contribution into an opening",
+            "preserve N and C's established meanings"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "late progress remains information about its completed turn",
+      "steps": [
+        {
+          "event": "Eligible S has accepted terminal result R"
+        },
+        {
+          "event": "First progress P names S",
+          "expect": [
+            "ack P",
+            "retain provisional historical information for S",
+            "P cannot replace R, reopen S, or create a second terminal result"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "late contribution admission reports past admission rather than new work",
+      "steps": [
+        {
+          "event": "The requester retains S, contribution C explicitly naming S, and accepted result R for S; C was issued before completion but its taken has not arrived"
+        },
+        {
+          "event": "First taken T names C as added-to-turn with turn S and agrees with all retained facts",
+          "expect": [
+            "ack T",
+            "record C's reported admission under S",
+            "do not reapply C, reopen S, or attach C to another turn"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "late answer admission is compatible with a completed turn and unknown closure reason",
+      "steps": [
+        {
+          "event": "The requester retains S, question Q naming S, answer A naming Q, and result R for S; neither A's taken nor an explicit closure reason for Q is known"
+        },
+        {
+          "event": "First taken T names A as answer with turn S and question Q",
+          "expect": [
+            "ack T",
+            "record the reported earlier answer admission and its answered meaning",
+            "S and Q remain terminal",
+            "no new answer is admitted by receiving T"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "one question cannot acquire two distinct admitted answers",
+      "steps": [
+        {
+          "event": "The requester retains S, question Q, and two issued answers A1 and A2 each naming Q; accepted taken T1 admits A1 as answer with question Q and turn S"
+        },
+        {
+          "event": "First taken T2 admits A2 as answer with question Q and turn S",
+          "expect": [
+            "refusal malformed for T2",
+            "preserve A1 as the admitted answer",
+            "do not choose between answer admissions by receipt order"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an expired question closure conflicts with later answer admission",
+      "steps": [
+        {
+          "event": "The requester retains S, Q, issued answer A naming Q, and accepted owner closed C for Q with why expired"
+        },
+        {
+          "event": "First taken T names A as answer with turn S and question Q",
+          "expect": [
+            "refusal malformed for T",
+            "preserve Q's established expired disposition",
+            "do not admit or report A as accepted"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "answer admission conflicts with a later incompatible owner closure",
+      "steps": [
+        {
+          "event": "The requester retains S, Q, A naming Q, and accepted taken T naming A as answer with turn S and question Q"
+        },
+        {
+          "event": "First owner closed C names Q with why expired",
+          "expect": [
+            "refusal malformed for C",
+            "preserve the established answered disposition",
+            "do not reinterpret the admitted answer as expired"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "answered closure does not identify which issued answer was admitted",
+      "steps": [
+        {
+          "event": "The requester retains S, Q, issued answer A naming Q, and accepted owner closed C naming Q with why answered; no report identifies the admitted answer"
+        },
+        {
+          "event": "First taken T names A as not-acted-on without turn",
+          "expect": [
+            "ack T",
+            "retain A's not-acted-on disposition",
+            "Q remains answered",
+            "do not infer that A must be the answer that resolved Q"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an old result cannot close another turn",
+      "steps": [
+        {
+          "event": "The requester retains eligible S and N in the same conversation; it has observed N's new-turn admission and no result for N; S's result is missing"
+        },
+        {
+          "event": "First result R names S",
+          "expect": [
+            "ack R",
+            "establish only S's terminal result",
+            "preserve the known facts and response obligation for N",
+            "do not correlate R to whichever turn the requester last observed"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "old progress and late taken cannot affect a newer turn",
+      "steps": [
+        {
+          "event": "The requester retains terminal S under R and has observed new-turn admission for N"
+        },
+        {
+          "event": "First progress P names S",
+          "expect": [
+            "ack P",
+            "associate P only with terminal S",
+            "N's progress and response obligation are unchanged"
+          ]
+        },
+        {
+          "event": "First taken T names S as new-turn with turn S",
+          "expect": [
+            "ack T",
+            "retain S's historical admission without reopening it",
+            "do not select S as current merely because T arrived after N's admission"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reordered admissions with missing results do not identify the current turn",
+      "steps": [
+        {
+          "event": "The requester issued untargeted S1, explicitly released its unconfirmed sending slot, then issued untargeted S2 in the same conversation; both eligible openings are retained and their results are missing"
+        },
+        {
+          "event": "First taken T2 names S2 as new-turn with turn S2",
+          "expect": [
+            "ack T2",
+            "retain the reported S2 admission"
+          ]
+        },
+        {
+          "event": "First taken T1 names S1 as new-turn with turn S1; its sent_at is earlier than T2's",
+          "expect": [
+            "ack T1",
+            "retain the reported S1 admission",
+            "do not infer which turn is currently open from receipt order, sent_at, or requester send order",
+            "do not infer two simultaneously open turns at the actor",
+            "preserve uncertainty without requiring an ordering field or recovery service"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stop acceptance alone does not establish that an opening was suppressed",
+      "steps": [
+        {
+          "event": "The requester retains eligible opening S and an accepted ack for stop K naming S; no result, not-acted-on, or established suppression disposition for S is known"
+        },
+        {
+          "event": "First result R names S with status stopped",
+          "expect": [
+            "ack R",
+            "retain S's terminal result",
+            "do not reject R on the assumption that the stop acknowledgement proved S never opened"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "not-acted-on prevents contradictory new turn reports",
+      "steps": [
+        {
+          "event": "The requester retains eligible S and accepted taken T0 naming S as not-acted-on without turn"
+        },
+        {
+          "event": "First result R names S",
+          "expect": [
+            "refusal malformed for R",
+            "preserve S's not-acted-on disposition"
+          ]
+        },
+        {
+          "event": "First question Q names S",
+          "expect": [
+            "refusal malformed for Q",
+            "do not establish a question for a turn known not to have opened"
+          ]
+        },
+        {
+          "event": "First progress P names S",
+          "expect": [
+            "refusal malformed for P",
+            "do not establish turn progress"
+          ]
+        },
+        {
+          "event": "First taken T1 names S as new-turn with turn S",
+          "expect": [
+            "refusal malformed for T1",
+            "do not reclassify S"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a result prevents a contradictory not-acted-on report",
+      "steps": [
+        {
+          "event": "The requester retains eligible S and accepted terminal result R naming S, without a taken"
+        },
+        {
+          "event": "First taken T0 names S as not-acted-on without turn",
+          "expect": [
+            "refusal malformed for T0",
+            "preserve R and the established fact that S completed"
+          ]
+        },
+        {
+          "event": "First taken T1 names S as new-turn with turn S",
+          "expect": [
+            "ack T1",
+            "retain the compatible earlier admission",
+            "S remains terminal"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a retained semantic refusal prevents contradictory notifications",
+      "steps": [
+        {
+          "event": "The requester retains S and an authenticated terminal semantic refusal F for S with reason unsupported; no turn opened for S"
+        },
+        {
+          "event": "First result R names S",
+          "expect": [
+            "refusal malformed for R",
+            "preserve the terminal refusal of S"
+          ]
+        },
+        {
+          "event": "First taken T names S as new-turn with turn S",
+          "expect": [
+            "refusal malformed for T",
+            "do not recreate or reclassify S"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "busy and verification failures do not prove that an opening was refused",
+      "steps": [
+        {
+          "event": "The requester retains eligible S; it has received only a retryable busy control for S and a verification-failure control concerning an invalid delivery, with no terminal semantic disposition for S"
+        },
+        {
+          "event": "First currently authenticated and otherwise consistent result R names S",
+          "expect": [
+            "ack R",
+            "establish S's terminal result",
+            "do not treat busy or a failed frame as proof that S never opened"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a contradictory incoming refusal cannot erase established acceptance",
+      "steps": [
+        {
+          "event": "The requester retains eligible S and accepted terminal result R for S"
+        },
+        {
+          "event": "First authenticated control refusal F names S and purports to give a terminal semantic refusal unsupported for the same request",
+          "expect": [
+            "preserve R and the established completion fact",
+            "do not apply the contradictory refusal as S's disposition",
+            "send no acknowledgement or refusal-of-refusal"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "incompatible taken classifications preserve the established disposition",
+      "steps": [
+        {
+          "event": "S is retained; contribution C explicitly names S; accepted taken T1 names C as added-to-turn with turn S"
+        },
+        {
+          "event": "First taken T2 names C as not-acted-on without turn",
+          "expect": [
+            "refusal malformed for T2",
+            "retain C's established admission"
+          ]
+        },
+        {
+          "event": "In a separate otherwise equivalent retained context, C has accepted taken T0 as not-acted-on; first taken T3 reports C as added-to-turn with turn S",
+          "expect": [
+            "refusal malformed for T3",
+            "retain C's not-acted-on disposition"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a compatible new taken report does not repeat the disposition",
+      "steps": [
+        {
+          "event": "The requester retains S and accepted taken T1 naming S as new-turn with turn S"
+        },
+        {
+          "event": "First taken T2 has a distinct ID and reports the same disposition for S",
+          "expect": [
+            "ack T2",
+            "retain compatible evidence without a second admission or turn transition"
+          ]
+        },
+        {
+          "event": "After accepted result R for S, another distinct taken T3 reports the same new-turn disposition",
+          "expect": [
+            "ack T3",
+            "S remains terminal",
+            "the special one-result-message rule is not a blanket ban on consistent taken reports"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a retained result retry is not another terminal result",
+      "steps": [
+        {
+          "event": "The requester retains eligible S and accepted result R with its exact signed bytes and authentication basis"
+        },
+        {
+          "event": "The exact signed R arrives again while its credential remains valid",
+          "expect": [
+            "normal duplicate ack for R",
+            "do not create a second result, effect, or turn transition"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "different bytes reusing a result identity remain a conflict",
+      "steps": [
+        {
+          "event": "The requester retains eligible S and accepted result R with its exact signed bytes"
+        },
+        {
+          "event": "A currently authenticated frame uses R's scoped ID but different signed bytes, even though its decoded result payload is equal",
+          "expect": [
+            "refusal malformed for conflicting signed-object reuse",
+            "preserve the original R and terminal state"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "distinct result identities cannot supply a second terminal outcome",
+      "steps": [
+        {
+          "event": "The requester retains eligible S and accepted result R1 with status succeeded and content done"
+        },
+        {
+          "event": "First result R2 has a distinct ID but names S with the same status and content",
+          "expect": [
+            "refusal malformed for R2",
+            "preserve the one established result R1",
+            "equal decoded outcomes do not make R2 an exact retry"
+          ]
+        },
+        {
+          "event": "First result R3 has another distinct ID and names S with status failed",
+          "expect": [
+            "refusal malformed for R3",
+            "preserve R1",
+            "do not choose a terminal outcome by receipt order"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "new notifications with an unknown opening do not recreate an earlier scope",
+      "steps": [
+        {
+          "event": "C1 ended; C2 is properly established with active guards and has no retained opening S or eligible prior admission state; no scoped owner-closure marker permits the question-before-parent exception. Each following notification is a new currently authenticated message signed for C2, not an original C1 frame."
+        },
+        {
+          "event": "First result R names S",
+          "expect": [
+            "refusal unknown for R",
+            "do not reconstruct S or claim that earlier work did not occur",
+            "an original C1 notification would instead fail the C2 scope guard before reference lookup"
+          ]
+        },
+        {
+          "event": "First question Q names S",
+          "expect": [
+            "refusal unknown for Q",
+            "no live question is created"
+          ]
+        },
+        {
+          "event": "First progress P names S",
+          "expect": [
+            "refusal unknown for P",
+            "no live turn is created"
+          ]
+        },
+        {
+          "event": "First taken T names S as new-turn with turn S",
+          "expect": [
+            "refusal unknown for T",
+            "the report cannot manufacture the missing issued request"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "known turn state does not manufacture a missing contribution or answer",
+      "steps": [
+        {
+          "event": "The requester retains eligible S and question Q for S but no issued say with ID A or C"
+        },
+        {
+          "event": "First taken T1 names unknown C as added-to-turn with turn S",
+          "expect": [
+            "refusal unknown for T1",
+            "do not reconstruct C from its disposition report"
+          ]
+        },
+        {
+          "event": "First taken T2 names unknown A as answer with turn S and question Q",
+          "expect": [
+            "refusal unknown for T2",
+            "do not reconstruct or admit A"
+          ]
+        },
+        {
+          "event": "In a separate retained context S and issued answer A naming Q are known but Q is absent; first taken T3 names A as answer with turn S and question Q",
+          "expect": [
+            "refusal unknown for T3",
+            "do not manufacture Q from the issued answer or its report"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an unloaded transcript is not an absent live reference",
+      "steps": [
+        {
+          "event": "The protocol endpoint retains eligible S and its live context, but the observer's current history page omits S"
+        },
+        {
+          "event": "First otherwise valid result R naming S reaches that endpoint",
+          "expect": [
+            "ack R",
+            "the endpoint resolves S using its retained live context",
+            "a page omission is not a live unknown-reference refusal"
+          ]
+        },
+        {
+          "event": "Separately, a passive history viewer displays an authenticated historical Q whose opening is not loaded and has no live endpoint context for it",
+          "expect": [
+            "displaying incomplete evidence does not create a live turn or answerable protocol question",
+            "core does not require that viewer to fetch missing pages or emit live acknowledgements"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "known non-opening targets are malformed rather than inferred turns",
+      "steps": [
+        {
+          "event": "The retained context contains opening S and contribution C naming S; C is not an opening request"
+        },
+        {
+          "event": "First result R names C as its turn",
+          "expect": [
+            "refusal malformed for R",
+            "do not infer that R meant S"
+          ]
+        },
+        {
+          "event": "First question Q names C as its turn",
+          "expect": [
+            "refusal malformed for Q",
+            "do not create an independent turn for C"
+          ]
+        },
+        {
+          "event": "First progress P names C as its turn",
+          "expect": [
+            "refusal malformed for P",
+            "do not retarget P to S"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "taken must agree with the issued say role and exact targets",
+      "steps": [
+        {
+          "event": "The requester retains opening S, another opening N, contribution C naming S, question Q for S, question Q2 for N, and answer A explicitly naming Q"
+        },
+        {
+          "event": "First taken T1 names C as new-turn with turn C",
+          "expect": [
+            "refusal malformed for T1",
+            "a targeted contribution cannot become an opening"
+          ]
+        },
+        {
+          "event": "First taken T2 names C as added-to-turn with turn N",
+          "expect": [
+            "refusal malformed for T2",
+            "C remains targeted to S"
+          ]
+        },
+        {
+          "event": "First taken T3 names A as answer with turn N and question Q2",
+          "expect": [
+            "refusal malformed for T3",
+            "do not retarget A from Q to Q2"
+          ]
+        },
+        {
+          "event": "First taken T4 names opening S as added-to-turn with turn N",
+          "expect": [
+            "refusal malformed for T4",
+            "an untargeted opening is not an implicit contribution"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a notification cannot be issued by the requester role",
+      "steps": [
+        {
+          "event": "Actor B receives a structurally valid question Q addressed to B in B's conversation with requester A; Q is signed by A, which has no actor-notification authority in that context"
+        },
+        {
+          "event": "Q passes cryptographic authentication but fails the notification sender-role check",
+          "expect": [
+            "refusal not-authorized for Q",
+            "no actor-owned question or turn transition is created"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a notification from another principal cannot affect the expected actor context",
+      "steps": [
+        {
+          "event": "Requester A retains eligible S in a conversation whose actor is B"
+        },
+        {
+          "event": "Isolated semantic-validation specimen only: a structurally valid result R naming S is authenticated as actor C and addressed to A, then supplied directly to the semantic checker; C has no authority to report B's turn and the earlier admission guard is intentionally omitted",
+          "expect": [
+            "the isolated semantic check identifies not-authorized for R",
+            "preserve B's turn state",
+            "a valid certificate alone does not grant the expected actor role",
+            "a full receiver rejects the foreign signer at its earlier profile/scope guard; this specimen does not require sending a core refusal after that rejection"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a terminal turn leaves a correlated independent approval pending",
+      "steps": [
+        {
+          "event": "The requester retains eligible S and independent pending approval AP whose optional correlation names S; AP is not expired, decided, or withdrawn"
+        },
+        {
+          "event": "First result R names S",
+          "expect": [
+            "ack R",
+            "S becomes terminal",
+            "AP remains governed by its independent owner, deadline, and decision state"
+          ]
+        },
+        {
+          "event": "First otherwise valid question Q names S",
+          "expect": [
+            "ack Q",
+            "Q is historical and terminal under S",
+            "AP remains pending"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "busy before notification acceptance creates no retained accepted fact",
+      "steps": [
+        {
+          "event": "Eligible S is retained; first otherwise valid progress P names S, but the receiver cannot accept the required responsibility"
+        },
+        {
+          "event": "The receiver declines this attempt as busy",
+          "expect": [
+            "refusal busy for P",
+            "no ack or accepted-progress disposition for P",
+            "busy does not terminally reserve P's identity"
+          ]
+        },
+        {
+          "event": "The identical currently valid P is retried when the receiver can accept it",
+          "expect": [
+            "ack P",
+            "apply ordinary first-seen admission",
+            "retain P as accepted progress only now"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an expired exact retained notification keeps its disposition",
+      "steps": [
+        {
+          "event": "The requester accepted result R for S while R's credential was valid and retains exact bytes, authentication basis, context, and terminal disposition"
+        },
+        {
+          "event": "The exact signed R arrives after ordinary credential expiry; current route assurance and disclosure authorization permit reporting its prior disposition",
+          "expect": [
+            "recognize the exact retained copy before fresh expiry admission",
+            "send a new minimal ack for R signed with a currently valid receiver credential",
+            "preserve the original terminal result without re-execution or content replay"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a first-seen expired notification cannot borrow known turn state",
+      "steps": [
+        {
+          "event": "The requester retains eligible S and may know S is terminal, but it has never accepted or terminally refused notification P"
+        },
+        {
+          "event": "First progress P naming S arrives with a credential expired beyond the permitted clock tolerance and a sent_at before expiry",
+          "expect": [
+            "certificate-expired under current first-seen admission",
+            "do not admit P using S's retained state or P's claimed sender time",
+            "S's established state remains unchanged"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an unassured expired retry does not disclose a retained notification",
+      "steps": [
+        {
+          "event": "The requester retains accepted result R and its exact bytes; an expired identical copy arrives on a route with no independently established authority to receive the disposition"
+        },
+        {
+          "event": "The response-audience guard fails",
+          "expect": [
+            "generic binding rejection without an ack, refusal, result, or retained-match disclosure",
+            "preserve the retained result and prior acceptance",
+            "the copied frame does not establish a return route"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an ordinary in-order replacement supersedes only its predecessor",
+      "steps": [
+        {
+          "event": "Eligible S has accepted progress P1 with content draft"
+        },
+        {
+          "event": "First progress P2 names S, contains revised, and replaces P1",
+          "expect": [
+            "ack P2",
+            "establish P2's replacement of P1",
+            "P1 may remain historical but cannot supersede P2"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an unresolved predecessor can arrive after its replacement",
+      "steps": [
+        {
+          "event": "Eligible S is retained; no message P1 is known in the applicable actor/context scope"
+        },
+        {
+          "event": "First progress P2 names S, contains revised, and replaces unseen P1",
+          "expect": [
+            "ack P2",
+            "accept P2 with an unresolved replacement declaration",
+            "do not invent P1 content, authenticate P1, or reserve P1's message identity"
+          ]
+        },
+        {
+          "event": "First otherwise valid progress P1 names S and contains draft",
+          "expect": [
+            "ack P1",
+            "establish P2's replacement of P1 regardless of delivery order",
+            "P1 cannot supersede P2 or become newer merely because it arrived later"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a transitive chain works when the oldest body arrives last",
+      "steps": [
+        {
+          "event": "Eligible S is retained; P1 has not arrived"
+        },
+        {
+          "event": "First progress P2 names S and replaces P1",
+          "expect": [
+            "ack P2",
+            "retain the unresolved declaration for P1"
+          ]
+        },
+        {
+          "event": "First progress P3 names S and replaces accepted P2",
+          "expect": [
+            "ack P3",
+            "P3 supersedes P2",
+            "do not require P1's body before establishing the known P3 to P2 relation"
+          ]
+        },
+        {
+          "event": "First otherwise valid P1 arrives as progress for S",
+          "expect": [
+            "ack P1",
+            "P1 is superseded through the P3 to P2 to P1 chain",
+            "P1 cannot undo either explicit relation"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a reversed chain resolves known links before the oldest body arrives",
+      "steps": [
+        {
+          "event": "Eligible S is retained; P1 and P2 have not arrived"
+        },
+        {
+          "event": "First P3 names S and replaces unseen P2",
+          "expect": [
+            "ack P3",
+            "the declaration for P2 is unresolved and creates no invented outgoing relation"
+          ]
+        },
+        {
+          "event": "First P2 names S and replaces unseen P1",
+          "expect": [
+            "ack P2",
+            "establish P3's supersession of P2 now",
+            "P2's declaration for P1 remains unresolved with no superseding edge to P1"
+          ]
+        },
+        {
+          "event": "First otherwise valid progress P1 names S",
+          "expect": [
+            "ack P1",
+            "establish the valid P2 to P1 relation",
+            "P3 supersedes P1 transitively through established relations only"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "replacement relations do not order independent progress",
+      "steps": [
+        {
+          "event": "Eligible S receives P1 and P2 as valid progress with no replaces relation between them; their sent_at values disagree with receipt order"
+        },
+        {
+          "event": "Both notifications are accepted",
+          "expect": [
+            "ack P1 and P2",
+            "retain incomparable information",
+            "do not assert that one supersedes the other from receipt order or timestamps",
+            "presentation and grouping remain implementation choices"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "forked replacements leave their successors incomparable",
+      "steps": [
+        {
+          "event": "Eligible S has accepted progress P1"
+        },
+        {
+          "event": "First P2 names S and replaces P1",
+          "expect": [
+            "ack P2",
+            "P2 supersedes P1"
+          ]
+        },
+        {
+          "event": "First P3 names S and also replaces P1 without naming P2",
+          "expect": [
+            "ack P3",
+            "P3 also supersedes P1",
+            "P2 and P3 are incomparable",
+            "neither successor supersedes the other merely because it arrived later"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a known wrong-kind replacement target is malformed",
+      "steps": [
+        {
+          "event": "Eligible S has accepted question Q"
+        },
+        {
+          "event": "First progress P2 names S and replaces Q",
+          "expect": [
+            "refusal malformed for P2",
+            "Q remains governed by its question lifecycle",
+            "no replacement relation suppresses Q"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a known cross-turn replacement target is malformed",
+      "steps": [
+        {
+          "event": "Eligible S and N are retained; accepted progress P1 belongs to N"
+        },
+        {
+          "event": "First progress P2 names S and replaces P1",
+          "expect": [
+            "refusal malformed for P2",
+            "P1 and N are unaffected",
+            "do not infer that P2 meant N"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a refused predecessor does not poison a fresh admissible successor",
+      "steps": [
+        {
+          "event": "Eligible S is retained; actor progress P1 was authenticated and identified as structurally valid same-actor same-turn progress but terminally refused as not-authorized under the then-applicable policy; its identity, validated facts and refusal are retained"
+        },
+        {
+          "event": "Fresh P2 names S and replaces P1; P2 independently passes current authentication, authorization, structure and correlation",
+          "expect": [
+            "ack P2",
+            "accept P2 as fresh progress without accepting P1",
+            "the declaration has no superseding effect over P1 or its predecessors",
+            "preserve P1's terminal refusal"
+          ]
+        },
+        {
+          "event": "Fresh valid P3 names S and replaces accepted P2",
+          "expect": [
+            "ack P3",
+            "establish P3's supersession of P2",
+            "P1's refusal does not cascade through valid new updates"
+          ]
+        },
+        {
+          "event": "An exact copy of P1 returns after policy would allow an equivalent new message",
+          "expect": [
+            "return P1's retained terminal refusal under the duplicate and response-audience rules",
+            "P2's acceptance does not revive P1"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a self replacement is malformed",
+      "steps": [
+        {
+          "event": "Eligible S is retained"
+        },
+        {
+          "event": "First progress P names S and sets replaces to its own ID P",
+          "expect": [
+            "refusal malformed for P",
+            "do not establish a self relation or accept P as progress"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a candidate that closes a two-message replacement cycle is malformed",
+      "steps": [
+        {
+          "event": "Eligible S is retained; first P2 naming S and replacing unseen P1 was accepted"
+        },
+        {
+          "event": "First progress P1 names S and replaces P2",
+          "expect": [
+            "refusal malformed for P1",
+            "do not establish a cyclic replacement relation",
+            "preserve P2's prior acceptance",
+            "P2's relation to the now terminally refused P1 has no superseding effect",
+            "do not send a new retrospective refusal for P2"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a longer cycle can be detected before the missing predecessor is admitted",
+      "steps": [
+        {
+          "event": "Eligible S has accepted P2 replacing unseen P1, and accepted P3 replacing P2"
+        },
+        {
+          "event": "First progress P1 names S and replaces P3",
+          "expect": [
+            "refusal malformed for P1",
+            "the explicit P1 to P3 to P2 to P1 declarations close a cycle",
+            "preserve accepted P2 and P3 without requiring a particular graph representation"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a later valid question invalidates only an unresolved replacement declaration",
+      "steps": [
+        {
+          "event": "Eligible S has accepted P2 with replaces X while X was unseen; no closure or terminal result prevents a new question in S"
+        },
+        {
+          "event": "First X arrives as an otherwise valid question naming S",
+          "expect": [
+            "ack X under ordinary question admission",
+            "X remains a question with its own lifecycle and is not suppressed by P2",
+            "P2's replacement declaration for X is invalid",
+            "P2 remains accepted as progress",
+            "do not reserve X as progress, undo P2's acknowledgement, or issue a retrospective refusal for P2"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a later valid progress message from another turn is not reserved by the declaration",
+      "steps": [
+        {
+          "event": "Eligible S and N are retained; P2 for S was accepted with replaces X while X was unseen"
+        },
+        {
+          "event": "First X arrives as otherwise valid progress naming N",
+          "expect": [
+            "ack X under ordinary admission for N",
+            "P2's replacement declaration for X is invalid and does not suppress X",
+            "P2 remains accepted for S",
+            "N remains independent",
+            "no retrospective refusal for P2"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a later refused target leaves prior progress accepted without supersession",
+      "steps": [
+        {
+          "event": "Eligible S has accepted P2 with replaces X while X was unseen"
+        },
+        {
+          "event": "First authenticated X arrives as progress for a wholly unknown opening U and is otherwise addressable in the same scope",
+          "expect": [
+            "refusal unknown for X under its own correlation rules",
+            "X is not accepted progress and supplies no superseding edge for P2",
+            "preserve P2's earlier acceptance and bytes",
+            "no retroactive refusal of P2 and no invented accepted X"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a replacement declaration cannot reserve another sender or context identity",
+      "steps": [
+        {
+          "event": "Eligible S in context C has accepted actor B's P2 with replaces X; X is absent in B's applicable scope"
+        },
+        {
+          "event": "An independent live context D retains eligible opening N; otherwise valid progress with UUID X names N and is signed by D's actor, which may differ from B",
+          "expect": [
+            "admit that message only under D's ordinary rules",
+            "it does not resolve or invalidate B's scoped declaration solely because the UUID matches",
+            "P2 cannot suppress that message or reserve its identity"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "same-conversation identities remain scoped despite unseen allocation collisions",
+      "steps": [
+        {
+          "event": "Requester A and actor B independently allocated the same UUID X before either knew the peer's allocation: A used it for a contribution to retained eligible S, B for progress about S; B's progress X has not reached A"
+        },
+        {
+          "event": "A accepts B-signed progress P2 naming S and replacing X while A already retains its own issued contribution X",
+          "expect": [
+            "ack P2",
+            "A's contribution X does not resolve or invalidate B's replacement declaration",
+            "P2 does not reserve or suppress A's distinct scoped identity"
+          ]
+        },
+        {
+          "event": "First otherwise valid B-signed progress X reaches A naming S",
+          "expect": [
+            "ack the B-originated X",
+            "establish P2's replacement of B's progress X",
+            "the A-originated contribution with the same UUID remains distinct and unaffected"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "failed authentication of a predecessor does not resolve the relation",
+      "steps": [
+        {
+          "event": "Eligible S has accepted P2 with replaces unseen P1"
+        },
+        {
+          "event": "A forged frame claims P1's ID but fails authentication",
+          "expect": [
+            "apply the current authentication failure outcome",
+            "do not resolve the replacement relation or reserve P1's identity from unverified claims",
+            "P2 remains accepted"
+          ]
+        },
+        {
+          "event": "First authentic and otherwise valid P1 arrives as progress for S",
+          "expect": [
+            "ack P1",
+            "establish P2's replacement relation",
+            "the earlier forged frame cannot force a conflicting-ID refusal"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "terminal state does not erase valid progress replacement meaning",
+      "steps": [
+        {
+          "event": "Eligible S has accepted result R and no progress messages yet"
+        },
+        {
+          "event": "First P2 naming S and replacing unseen P1 arrives",
+          "expect": [
+            "ack P2",
+            "retain historical progress with an unresolved replacement declaration",
+            "S remains terminal"
+          ]
+        },
+        {
+          "event": "First otherwise valid P1 arrives as progress for S",
+          "expect": [
+            "ack P1",
+            "P2 supersedes P1 among S's historical progress",
+            "neither progress message replaces R or reopens S"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a refused predecessor supplies no transitive replacement path",
+      "steps": [
+        {
+          "event": "Eligible S has accepted progress P0; authenticated structurally valid same-turn P1 declares replaces P0 but is terminally refused under authorization policy"
+        },
+        {
+          "event": "Otherwise admissible fresh P2 names S and replaces refused P1",
+          "expect": [
+            "ack P2",
+            "no superseding edge to P1",
+            "do not traverse refused P1's outgoing declaration to suppress accepted P0"
+          ]
+        },
+        {
+          "event": "Otherwise valid P3 names S and replaces accepted P2",
+          "expect": [
+            "ack P3",
+            "P3 supersedes P2 only through established accepted relations",
+            "P0 is not superseded through refused P1"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unvalidated target fields do not turn refusal into wrong-kind evidence",
+      "steps": [
+        {
+          "event": "The receiver retains a terminal malformed refusal for authenticated scoped ID X, but validation did not establish X's kind or turn; readable raw fields are not a validated target description"
+        },
+        {
+          "event": "Otherwise admissible P2 names known eligible S and replaces X",
+          "expect": [
+            "ack P2",
+            "do not reject P2 solely because X was refused",
+            "establish no superseding edge and invent no kind or turn for X",
+            "do not use unvalidated raw fields to manufacture a wrong-kind or wrong-turn contradiction"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a refused target with independently validated wrong-kind facts remains invalid",
+      "steps": [
+        {
+          "event": "Eligible S is retained; the receiver has trustworthy validated facts that scoped X is an actor question for S, although X was terminally refused under authorization policy"
+        },
+        {
+          "event": "First progress P2 names S and replaces X",
+          "expect": [
+            "refusal malformed for P2",
+            "the established wrong kind is independently invalid",
+            "the refusal-alone exception cannot turn a question into progress"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a refused target with independently validated wrong-turn facts remains invalid",
+      "steps": [
+        {
+          "event": "Eligible S and N are retained; trustworthy validated facts establish scoped P1 as actor progress for N, although P1 was terminally refused under authorization policy"
+        },
+        {
+          "event": "First progress P2 names S and replaces P1",
+          "expect": [
+            "refusal malformed for P2",
+            "the established wrong turn is independently invalid",
+            "preserve N and P1's retained refusal"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "busy does not make an unseen predecessor terminally refused",
+      "steps": [
+        {
+          "event": "Eligible S is retained; earlier P1 received busy without acceptance, terminal refusal, or a retained validated target record"
+        },
+        {
+          "event": "Otherwise valid P2 names S and replaces P1",
+          "expect": [
+            "ack P2",
+            "retain an unresolved declaration rather than an accepted or terminally refused P1"
+          ]
+        },
+        {
+          "event": "Exact P1 is retried with current valid authentication and is accepted as same-actor same-turn progress",
+          "expect": [
+            "ack P1",
+            "establish P2's supersession of P1 regardless of delivery order"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "new message allocation avoids retained identities without global coordination",
+      "steps": [
+        {
+          "event": "A is allocating a new message in a retained conversation; it knows its own prior IDs and peer message ID X"
+        },
+        {
+          "event": "A allocates the new message ID",
+          "expect": [
+            "use a fresh UUID not previously used for different bytes in A's applicable scope",
+            "avoid peer ID X already known in this conversation",
+            "no global registry or coordination with unseen peer allocations is required"
+          ]
+        },
+        {
+          "event": "A retries an already issued message",
+          "expect": [
+            "reuse its complete original signed bytes and ID",
+            "do not allocate a new ID for that retry"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a bare say reference cannot choose between an opening and a question",
+      "steps": [
+        {
+          "event": "Adversarial collision fixture: the same retained conversation contains requester opening S with UUID X and actor question Q with UUID X for S; their scoped identities are distinct, irrespective of whether the actor followed the allocation obligation"
+        },
+        {
+          "event": "New say C has in_response_to X and no established prior interpretation",
+          "expect": [
+            "refusal malformed for C before turn-state admission",
+            "do not choose contribution-to-S or answer-to-Q by kind preference or iteration order",
+            "S and Q retain their established meanings"
+          ]
+        },
+        {
+          "event": "A compatible late taken T names X as new-turn with turn X under the requester-originator role",
+          "expect": [
+            "ack T",
+            "resolve T to requester opening S using its fixed role and fields",
+            "do not confuse T with disposition of the actor-originated Q"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "closed target state cannot disambiguate a bare say reference",
+      "steps": [
+        {
+          "event": "Adversarial collision fixture: retained closed requester opening S and actor question Q for a different eligible turn N share UUID X; Q remains open and neither identity is an exact duplicate of the other"
+        },
+        {
+          "event": "New say C has in_response_to X without an established prior interpretation",
+          "expect": [
+            "refusal malformed for ambiguous permitted targets",
+            "do not select Q merely because S is closed",
+            "do not return closed by choosing S before considering Q",
+            "neither turn or question changes"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a wrong-kind UUID collision does not add another permitted say target",
+      "steps": [
+        {
+          "event": "Retained eligible requester opening S and actor progress P share UUID X under different originators; this is a collision fixture and P is not a permitted say target"
+        },
+        {
+          "event": "New otherwise valid say C has in_response_to X and its contribution is permitted by S's contract",
+          "expect": [
+            "resolve the sole permitted target as requester opening S",
+            "ack C and taken for C as added-to-turn with turn S",
+            "do not reject merely because another known but impermissible target kind shares X"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a later collision cannot reinterpret an established contribution",
+      "steps": [
+        {
+          "event": "The actor admitted contribution C when its in_response_to X unambiguously identified requester opening S; the actor retains that disposition and the requester retains its original unambiguous reference interpretation, but taken C has not yet reached the requester"
+        },
+        {
+          "event": "A later-discovered actor question Q has UUID X in the same conversation, adding a permitted candidate for future bare say references",
+          "expect": [
+            "do not retarget C to Q",
+            "do not change C's accepted contribution disposition"
+          ]
+        },
+        {
+          "event": "An exact retained C returns",
+          "expect": [
+            "normal duplicate acknowledgement for C",
+            "no fresh ambiguous-target admission or second execution"
+          ]
+        },
+        {
+          "event": "The requester first receives compatible late taken T reporting C as added-to-turn with turn S",
+          "expect": [
+            "ack T",
+            "use the established earlier interpretation and T's explicit report fields",
+            "do not assume the collision was known at C's earlier admission"
+          ]
+        },
+        {
+          "event": "A fresh say D now carries in_response_to X without an established interpretation",
+          "expect": [
+            "refusal malformed for D",
+            "C's prior admission does not assign a target to D"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "local causal evidence can disprove alleged admission before completion",
+      "steps": [
+        {
+          "event": "The requester retains S, its question Q, and accepted terminal result R; its retained local facts establish that new contribution C to S and answer A to Q were first created only after observing R"
+        },
+        {
+          "event": "First otherwise well-formed taken TC names C as added-to-turn with turn S",
+          "expect": [
+            "refusal malformed for TC",
+            "do not reinterpret C as an earlier admitted contribution",
+            "do not confirm acceptance of C or reopen S"
+          ]
+        },
+        {
+          "event": "First otherwise well-formed taken TA names A as answer with turn S and question Q",
+          "expect": [
+            "refusal malformed for TA",
+            "do not confirm or record A as an earlier admitted answer",
+            "use the established causal facts, not sent_at or an assumption about transport order",
+            "no new clock or event-log representation is required"
+          ]
+        }
+      ]
+    }
+  ]
+}

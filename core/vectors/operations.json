@@ -1,0 +1,281 @@
+{
+  "description": "Required core description, operation, data-presence and embedded-schema behavior. Unless a step states otherwise, messages are authenticated, authorized, correctly addressed, structurally valid apart from the condition under test, and satisfy resource and reference checks. Description exchanges use retained non-conversation request scopes and authorized routes. Conversation traffic uses an established applicable continuity profile with a valid admission guard and retained required context; no turn is open before each independent fresh invocation. Distinct letters identify distinct messages. These abstract traces distinguish actor obligations from requester knowledge and do not establish implementation conformance or an application compatibility promise.",
+  "cases": [
+    {
+      "name": "distinct exact names are permitted within one description",
+      "steps": [
+        { "event": "a description declares build and Build as two distinct operation names", "expect": ["accept the otherwise valid description", "retain exact string selectors without case folding or name merging", "the description confirms its retained describe request"] }
+      ]
+    },
+    {
+      "name": "identical repeated operation declarations are invalid",
+      "steps": [
+        { "event": "a description contains two identical declarations named build", "expect": ["refusal malformed for the whole description", "do not select the first or last entry or collapse the duplicate", "the invalid description does not confirm its describe request"] }
+      ]
+    },
+    {
+      "name": "conflicting declarations with one name are invalid",
+      "steps": [
+        { "event": "a description contains two build declarations with different output schemas", "expect": ["refusal malformed for the whole description", "do not merge declarations or choose one by array order", "signature verification and outer-schema validity do not establish a valid operation set"] }
+      ]
+    },
+    {
+      "name": "operation-name uniqueness is local to a description",
+      "steps": [
+        { "event": "actor A and actor B each describe an operation named build with different meanings", "expect": ["both descriptions can be valid", "no global operation-name allocation is required"] },
+        { "event": "A later describes build with a changed contract, with no stronger agreement applying to future turns", "expect": ["the changed declaration is not invalid solely because the name was used before", "already admitted turns retain their selected contracts", "the new description supplies no automatic authority for an invocation"] }
+      ]
+    },
+    {
+      "name": "a description confirms only its properly associated request",
+      "steps": [
+        { "event": "requester retains describe D addressed to actor A in its non-conversation request scope" },
+        { "event": "A sends a valid description naming A and referring to D", "expect": ["accept the description and confirm D", "do not confirm another describe or a conversation submission", "no conversation context or turn is established"] }
+      ]
+    },
+    {
+      "name": "an expected signer cannot describe an inconsistent actor name",
+      "steps": [
+        { "event": "requester retains describe D addressed to A; authenticated A answers D with description.name equal to B", "expect": ["refusal malformed", "D is not confirmed by the inconsistent description", "the name field cannot substitute another actor's identity"] }
+      ]
+    },
+    {
+      "name": "another authenticated actor cannot answer the requested actor's describe",
+      "steps": [
+        { "event": "after earlier route, authentication and addressing checks pass, authenticated B submits a description referring to retained describe D addressed to A", "expect": ["refusal not-authorized", "D is not confirmed", "a claimed name of A does not replace the authenticated sender"] }
+      ]
+    },
+    {
+      "name": "description correlation requires the right retained request",
+      "steps": [
+        { "event": "after earlier guards pass, an otherwise valid description refers to an unknown request in its applicable non-conversation request scope", "expect": ["refusal unknown", "do not manufacture a describe request from the response"] },
+        { "event": "a different description refers to a known message of the wrong kind in that scope", "expect": ["refusal malformed", "do not confirm that message as a describe request"] }
+      ]
+    },
+    {
+      "name": "discovery does not bind a later fresh invocation",
+      "steps": [
+        { "event": "requester receives description D1 for build; before invocation the actor changes its offering to D2; no stronger agreement applies" },
+        { "event": "fresh say S names build and satisfies the actor's currently selected D2 input", "expect": ["S can open a turn under D2", "D1 alone does not require selection of D1", "neither a fresh describe nor its receipt eliminates the interval before admission"] },
+        { "event": "the actor completes S successfully", "expect": ["the result must satisfy the D2 output selected at admission", "core does not require permanent meaning for build across future turns"] }
+      ]
+    },
+    {
+      "name": "an unavailable operation is refused without opening a turn",
+      "steps": [
+        { "event": "a cached description advertised build, but the actor no longer offers it for fresh requests" },
+        { "event": "fresh say S names build", "expect": ["refusal unsupported", "no turn opens and no requested application action is performed", "the cached advertisement supplies no availability or authorization guarantee"] }
+      ]
+    },
+    {
+      "name": "a turn retains its selected contract after the offering changes",
+      "steps": [
+        { "event": "S opens under build with a selected numeric output schema and declared supplemental contribution rules" },
+        { "event": "a later description changes build to a string output for future requests" },
+        { "event": "permitted contribution C targets S and repeats build", "expect": ["admit C under S's retained contribution rules", "do not replace S's contract from the current description"] },
+        { "event": "the actor completes S successfully", "expect": ["S's result contains data satisfying its selected numeric output", "the changed offering does not retroactively redefine the accepted turn"] }
+      ]
+    },
+    {
+      "name": "an established output mismatch is refused before taken arrives",
+      "steps": [
+        { "event": "retained applicable agreement establishes that eligible opening S uses output type number; S's taken has not arrived" },
+        { "event": "a first result for S reports succeeded with string data", "expect": ["refusal malformed", "the invalid result neither confirms S nor establishes its terminal outcome", "do not infer non-execution from refusal of the report"] }
+      ]
+    },
+    {
+      "name": "an established empty output schema still requires present data",
+      "steps": [
+        { "event": "retained applicable agreement establishes output {} for eligible opening S" },
+        { "event": "a first succeeded result for S omits data", "expect": ["refusal malformed", "absence is not a JSON value satisfying the schema", "S is not confirmed by this report"] }
+      ]
+    },
+    {
+      "name": "unknown selected output does not require waiting for taken",
+      "steps": [
+        { "event": "requester retains eligible opening S but neither taken nor an applicable output declaration" },
+        { "event": "an otherwise valid consistent succeeded result identifies S", "expect": ["accept the report and confirm S", "retain the actor's reported terminal outcome", "selected-schema and application compliance may remain unverified", "the actor remains obligated to honor its actual selected output"] }
+      ]
+    },
+    {
+      "name": "an unbound advertisement cannot invalidate a result",
+      "steps": [
+        { "event": "requester cached a numeric output declaration for build, but no agreement or evidence establishes its applicability to eligible opening S" },
+        { "event": "an otherwise valid consistent result for S contains string data", "expect": ["do not refuse solely for mismatch with the cached declaration", "accept the report and confirm S under ordinary receiving rules", "do not infer the selected declaration from the returned data"] }
+      ]
+    },
+    {
+      "name": "later contract evidence does not reverse an accepted report",
+      "steps": [
+        { "event": "a valid correlated result R was accepted and confirmed S while the applicable output declaration was unknown" },
+        { "event": "later trustworthy evidence establishes that R failed the selected output contract", "expect": ["retain R's acceptance and S's established confirmation", "preserve the newly established mismatch without inventing prior validation", "do not issue a retroactive refusal or conclude that past execution did not occur", "local handling of the additional evidence is infrastructure policy"] }
+      ]
+    },
+    {
+      "name": "general JSON data travels without mandatory object wrappers",
+      "steps": [
+        { "event": "an operation declares input {} and output {}; in separate fresh invocations its data values are null, false, 0, empty text, an empty array and an empty object", "expect": ["each present value can satisfy the input declaration", "each invocation has its own turn and response contract", "the message envelope remains an object"] },
+        { "event": "each turn succeeds with its corresponding value in result.data", "expect": ["preserve the exact data value and field presence", "no universal value wrapper is required", "do not omit empty or falsey values"] }
+      ]
+    },
+    {
+      "name": "missing input and present null have different meanings",
+      "steps": [
+        { "event": "fresh say S invokes an operation with input {} but omits data", "expect": ["refusal malformed before a turn opens", "do not replace absence with null or an empty object"] },
+        { "event": "fresh say N invokes the same operation with data null", "expect": ["N can open a turn", "present null satisfies the empty input schema"] }
+      ]
+    },
+    {
+      "name": "input validation does not coerce types",
+      "steps": [
+        { "event": "fresh say S supplies string-valued data \"0\" to an operation declaring input type number", "expect": ["refusal malformed", "do not convert the string to numeric zero", "no turn opens"] },
+        { "event": "fresh say N supplies numeric data 0 to the same operation", "expect": ["N can open a turn", "numeric zero is preserved rather than treated as missing"] }
+      ]
+    },
+    {
+      "name": "data without an opening input schema remains advisory",
+      "steps": [
+        { "event": "an operation declares guidance but no input schema; a fresh request supplies content and array-valued data", "expect": ["the actor interprets content under the operation contract", "data alone does not create binding structured-input semantics", "general JSON does not imply a universal merge or execution rule"] },
+        { "event": "a separate valid fresh request to that operation omits data", "expect": ["omission is permitted", "the actor can open a turn without manufacturing a data value"] }
+      ]
+    },
+    {
+      "name": "defaults and property removal cannot make an input valid",
+      "steps": [
+        { "event": "input requires count and forbids additional properties; count's schema includes default 1" },
+        { "event": "fresh request S supplies an empty object", "expect": ["refusal malformed", "do not insert default count to obtain a match"] },
+        { "event": "fresh request N supplies count 1 and an undeclared extra property", "expect": ["refusal malformed", "do not remove the extra property to obtain a match"] }
+      ]
+    },
+    {
+      "name": "successful output retains empty and falsey values",
+      "steps": [
+        { "event": "separate turns select output schemas respectively permitting false, 0, empty text, an empty array and an empty object" },
+        { "event": "the actor succeeds with the corresponding value for each turn", "expect": ["every result contains its data field", "serialization preserves the selected value", "a requester with established applicable output accepts the otherwise valid result"] }
+      ]
+    },
+    {
+      "name": "non-success data is not constrained by the success schema",
+      "steps": [
+        { "event": "eligible opening S has an established output schema requiring an object with completed true" },
+        { "event": "the actor returns failed for S with an explanatory string in data", "expect": ["the success schema does not make the result malformed", "accept the otherwise valid report and confirm S", "retain the reported failure without inventing completion"] },
+        { "event": "a separate eligible turn with that output contract ends needs-clarification without data", "expect": ["the success presence requirement does not apply", "the otherwise valid terminal report can be accepted"] }
+      ]
+    },
+    {
+      "name": "an absent output declaration leaves result data optional",
+      "steps": [
+        { "event": "the selected operation has no output declaration and the actor completes the turn successfully without data", "expect": ["absence of data does not violate the output contract", "the result still requires its ordinary status, content and correlation", "no empty object or null value is synthesized"] }
+      ]
+    },
+    {
+      "name": "contributions use their declared input meaning",
+      "steps": [
+        { "event": "S opens with object input requiring document; its contribution rules separately permit a string-valued constraint" },
+        { "event": "contribution C targets S with string data and omits operation", "expect": ["C can be admitted under the retained contribution rules", "do not apply the opening object schema to C", "S's output contract is unchanged"] },
+        { "event": "a different contribution D violates those declared contribution rules", "expect": ["refusal malformed for D", "no implicit merge, replacement or independent turn"] }
+      ]
+    },
+    {
+      "name": "full input replacement requires a complete valid value",
+      "steps": [
+        { "event": "S's selected input requires document and region; its guidance permits a targeted full replacement" },
+        { "event": "contribution C requests full replacement but omits data", "expect": ["refusal malformed", "the prior effective input is unchanged"] },
+        { "event": "new contribution D supplies only region", "expect": ["refusal malformed", "do not merge the missing document from the earlier input"] },
+        { "event": "new contribution E supplies a complete valid replacement", "expect": ["E can be admitted under the selected contribution rules", "the response obligation remains S's original output contract"] }
+      ]
+    },
+    {
+      "name": "schema roots remain objects while nested boolean schemas work",
+      "steps": [
+        { "event": "a description's object-form input uses a nested property schema false to forbid that property", "expect": ["the declaration can be valid under draft 2020-12", "the nested boolean retains its standard validation meaning"] },
+        { "event": "a different description supplies false directly as operation.input", "expect": ["refusal malformed", "general JSON data does not broaden the object-form schema-root profile"] }
+      ]
+    },
+    {
+      "name": "local definitions and nested resources can be self-contained",
+      "steps": [
+        { "event": "an object-form input uses $defs and $ref whose target resolves unambiguously to a schema within that input document", "expect": ["the declaration can be accepted", "validate submitted data under the resolved schema", "no schema retrieval is performed"] },
+        { "event": "a separate valid input contains an anchored nested resource and a reference that resolves internally under draft 2020-12", "expect": ["the declaration can be accepted", "an internal resource identifier does not require network retrieval"] }
+      ]
+    },
+    {
+      "name": "meta-invalid embedded schemas invalidate the description",
+      "steps": [
+        { "event": "an otherwise valid description has operation.input with type equal to numeric 42", "expect": ["refusal malformed for the description", "an outer payload-schema pass is insufficient", "do not publish or compile the declaration as an implementation-specific dialect"] }
+      ]
+    },
+    {
+      "name": "the embedded dialect cannot silently vary by validator",
+      "steps": [
+        { "event": "a valid embedded schema omits $schema", "expect": ["interpret it as the fixed draft 2020-12 profile", "do not use the validator library's default dialect"] },
+        { "event": "a different description explicitly selects draft-07 at its input root or at a nested schema location", "expect": ["refusal malformed", "local support for draft-07 does not make it a core operation schema", "a nested schema cannot silently switch dialect"] }
+      ]
+    },
+    {
+      "name": "external schema references cannot trigger retrieval",
+      "steps": [
+        { "event": "an input contains $ref or $dynamicRef to a resource outside its own schema document", "expect": ["refusal malformed for the description", "do not retrieve the target over the network", "an application-owned URL or valid signature does not relax self-containment"] },
+        { "event": "a different declaration refers from input into output or into another operation's schema", "expect": ["refusal malformed", "each input and output is an independent schema document"] }
+      ]
+    },
+    {
+      "name": "unresolved or ambiguous internal references are invalid",
+      "steps": [
+        { "event": "an input references a missing local $defs entry", "expect": ["refusal malformed for the description", "do not defer the missing target into a different dialect or external lookup"] },
+        { "event": "a separate declaration's internal reference has more than one possible resource target", "expect": ["refusal malformed", "do not choose a target by traversal or registration order"] }
+      ]
+    },
+    {
+      "name": "format and content annotations do not add core assertions",
+      "steps": [
+        { "event": "an operation input has type string and format email, with no separate application check applying" },
+        { "event": "fresh request S supplies string data that is not an email address", "expect": ["format alone does not make S malformed", "the input matches the core schema profile", "a validator's optional format assertion mode must not change this result"] },
+        { "event": "a separate input uses standard content annotations", "expect": ["core schema matching does not require decoding or validating embedded content", "separate applicable application checks retain their own meaning"] }
+      ]
+    },
+    {
+      "name": "unknown schema keywords cannot activate required validation",
+      "steps": [
+        { "event": "an otherwise valid input declares type number, an unknown keyword positiveOnly true and an embedded $vocabulary naming a custom assertion vocabulary" },
+        { "event": "fresh request S supplies numeric data -1 with no separately applicable application restriction", "expect": ["the unknown keyword does not add a core assertion", "embedded $vocabulary does not replace the fixed dialect", "the supplied value matches the core schema profile", "required additional application meaning needs a separately applicable contract"] }
+      ]
+    },
+    {
+      "name": "schema validity does not require a satisfying instance",
+      "steps": [
+        { "event": "a description declares object-form input with not equal to an empty schema", "expect": ["the schema is valid despite rejecting every instance", "no general satisfiability proof is required before accepting the description", "the application owner remains responsible for a useful offering"] },
+        { "event": "fresh say S invokes that operation with present data", "expect": ["refusal malformed because the value does not match", "no turn opens"] }
+      ]
+    },
+    {
+      "name": "instance annotations are not traversed as executable schemas",
+      "steps": [
+        { "event": "an otherwise valid input uses const to require an object containing literal members named $ref and $schema; their values resemble an external reference and another dialect" },
+        { "event": "fresh say S supplies exactly that object", "expect": ["the const value remains instance data", "do not fetch its literal $ref or switch dialect from its literal $schema", "the value can match and S can open a turn"] }
+      ]
+    },
+    {
+      "name": "retained accepted copies precede current offering checks",
+      "steps": [
+        { "event": "S was accepted under build; its exact signed bytes and eligible disposition remain retained in an active authorized scope" },
+        { "event": "build is removed or its current input changes; the original certificate expires" },
+        { "event": "an exact copy of S arrives on an independently authorized route under the still-valid scope guard", "expect": ["return only the fresh minimal acceptance acknowledgement permitted by retained-copy rules", "do not reinterpret S against the current offering or input schema", "do not re-execute S or return cached application content"] }
+      ]
+    },
+    {
+      "name": "retained refusal does not become admission after offering changes",
+      "steps": [
+        { "event": "S was terminally refused as unsupported for an unknown operation, with an eligible retained disposition" },
+        { "event": "the actor now offers that name; an exact copy of S arrives within valid guards and authorized disclosure scope", "expect": ["return the retained unsupported disposition under duplicate rules", "do not open a turn or execute the newly available operation", "deliberate new work requires a fresh message identity and applicable authority"] }
+      ]
+    },
+    {
+      "name": "operation interpretation cannot bypass continuity or audience guards",
+      "steps": [
+        { "event": "a queued request names a valid operation with matching data but its original conversation guard has retired", "expect": ["apply the selected continuity profile's binding rejection", "do not open replacement context or perform semantic operation admission", "do not reveal a retained disposition through the retired scope"] },
+        { "event": "a non-conversation description would otherwise match a retained describe but its response route fails the applicable audience guard", "expect": ["apply the binding's audience rejection without protected feedback", "valid declaration content does not authorize disclosure or confirmation processing"] }
+      ]
+    }
+  ]
+}

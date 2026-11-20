@@ -43,6 +43,7 @@ from implementations and experiments.
 | Build a networked application | [Network development guide](docs/network-development.md) |
 | Implement a conforming endpoint | [Implementation guide](docs/implementation.md), then the [core specification](core/README.md) |
 | Establish a stable application agreement | [Optional interaction agreements](extensions/interaction-agreements/README.md) |
+| Verify authority to represent another principal | [Optional delegated authority](extensions/delegated-authority/README.md) |
 | Understand a previous decision or rejected approach | [Curated history](docs/historical/README.md) |
 
 ## Repository map
@@ -85,9 +86,9 @@ ordinary acknowledgement, a reconnect or the presence of saved messages.
 | Payload schema | `urn:keel-protocol:core:1` |
 | Identity certificate type | `keel-cert+jwt` under the closed core credential profile |
 
-Earlier draft identities are not interchangeable. No recovery extension or scoped
-grant extension is selected. The provisioned interaction-agreement profile is
-specified and optional.
+Earlier draft identities are not interchangeable. The provisioned interaction
+agreement and provisioned direct grant are [optional profiles](extensions/README.md).
+History and recovery remain application responsibilities.
 
 Run `python3 tools/check_repository.py` for local documentation links, artifact
 structure and trace-integrity checks. These checks do not execute an actor or

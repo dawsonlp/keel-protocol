@@ -1,0 +1,475 @@
+{
+  "description": "Standalone direct-grant artifact and setup cases. These expected labels describe fixture checks only, not protocol refusal reasons. Treat candidate_keys as configured for the grant issuer in the test namespace. An issuance-authorized key is allowed to confer only permission for party:ada at actor:library under example.library/1 with the action read and resource doc-x. That contract recognizes only actions and resources arrays containing exactly those values. Key material is public and only for verification tests. Cases are independent even when they share an ID.",
+  "keys": {
+    "ed_authority": {
+      "crv": "Ed25519",
+      "x": "lN8bnYrxjq0xxtLGVJCN4GOPuoLp-Rr4iZQtCXXnnag",
+      "kty": "OKP"
+    },
+    "es_authority": {
+      "kty": "EC",
+      "x": "WJ_yPrkbNm5pc3r3SZrW6Ck66HG2CNkbjHSVLbUiwm8",
+      "y": "JibpQJRYuFrDDPMShoiFsX8-LuuHQtjZsJK-S5oehSw",
+      "crv": "P-256"
+    },
+    "untrusted_authority": {
+      "crv": "Ed25519",
+      "x": "-lqgnXR3ZisUdYjL8-jzk0D7o9tWII-esh9BynliR5o",
+      "kty": "OKP"
+    },
+    "proxy": {
+      "crv": "Ed25519",
+      "x": "Ofu3OvN-KqMXBkhEb0TnWac8Uo138GrxpjdrKybKp5E",
+      "kty": "OKP"
+    }
+  },
+  "defaults": {
+    "now": "2030-01-01T12:01:00Z",
+    "max_lifetime_microseconds": 300000000,
+    "candidate_keys": [
+      "ed_authority",
+      "es_authority"
+    ],
+    "issuance_authorized_keys": [
+      "ed_authority",
+      "es_authority"
+    ],
+    "holder": "actor:proxy",
+    "holder_key": "proxy",
+    "subject": "party:ada",
+    "audience": "actor:library",
+    "denied_grant_ids": []
+  },
+  "cases": [
+    {
+      "name": "valid Ed25519 at inclusive start",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "valid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.2_Ox5MQ1RP2proxGnk0kTgYs7NthdtJcLncf6A0jAnmo2Sjn_t8j8c49lyCoKf3xTwePdLjsYQMS4y0BzXQECg",
+      "overrides": {
+        "now": "2030-01-01T12:00:00.000001Z"
+      },
+      "schema_valid": true,
+      "expected": "valid"
+    },
+    {
+      "name": "valid ES256 before exclusive end",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "valid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFUzI1NiIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.sd7ospFns-2plIQHEnBFtF5uToxZvJ3gXXLTepTDjPW2awNDuLtNSmJKFMthXtJabCIYv2s0LllwpoHTW8OsTA",
+      "overrides": {
+        "now": "2030-01-01T12:05:00.000000Z"
+      },
+      "schema_valid": true,
+      "expected": "valid"
+    },
+    {
+      "name": "unknown signed type",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGVyaXZlZC1ncmFudC12MStqd3MifQ.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.Ror4Oh0jRQGcx-2pJJzckbz1_Z52jwvmwnlCJfqOY1BtIROipqtPUAXSuDKLMVqE-FJ5YozDax06gP51EBjqBQ",
+      "schema_valid": false,
+      "expected": "artifact-invalid"
+    },
+    {
+      "name": "certificate type cannot substitute for grant",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtY2VydCtqd3QifQ.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.ILmMfLCrMtz6hVccu9jdDTPC8AmdEMAeLqzGPNRk3rMTeH2BrO96lxBGMP8ItUWTMo2a1Vtgdy6Igr5dDmhoAA",
+      "schema_valid": false,
+      "expected": "artifact-invalid"
+    },
+    {
+      "name": "unsupported algorithm",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJIUzI1NiIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.P4nvguGGXahZTVdXuXLYe90hiUBM3yeK1lt9oyl2D6--ogWTb54YlSiBBLr1Jvl10yLNcHpxMtAg0eRtXj0BAQ",
+      "schema_valid": false,
+      "expected": "artifact-invalid"
+    },
+    {
+      "name": "unknown protected header member",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsImprdSI6Imh0dHBzOi8vZXhhbXBsZS5pbnZhbGlkL2lzc3VlciIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.oT5jzuQYsdHOCow8bHl9wV6SwrOqdVXGNaSCc_0LC8BZJ2SGoAbxpPvQ4B75TSDVNYT5dlYU27-wk808kkh2CQ",
+      "schema_valid": false,
+      "expected": "artifact-invalid"
+    },
+    {
+      "name": "unsupported parent claim",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGFyZW50IjoiZXhhbXBsZSIsInBlcm1pc3Npb24iOnsiY29udHJhY3QiOiJleGFtcGxlLmxpYnJhcnkvMSIsInBhcmFtZXRlcnMiOnsiYWN0aW9ucyI6WyJyZWFkIl0sInJlc291cmNlcyI6WyJkb2MteCJdfX0sInN1YmplY3QiOiJwYXJ0eTphZGEifQ.XBgHKguIIgWHduqo8FZm8zcI0E9JFC92qrz-vPk_c1k-MFENCD6WV7Ry7BeMx2lVRZLcqQ9BBdKYpdzvnUw4Dg",
+      "schema_valid": false,
+      "expected": "artifact-invalid"
+    },
+    {
+      "name": "unsupported permission constraint",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "authority-unestablished"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicXVvdGEiOjEsInJlc291cmNlcyI6WyJkb2MteCJdfX0sInN1YmplY3QiOiJwYXJ0eTphZGEifQ.zUq_pcU_R8gi867jJFiL_tZf5yRAec5-JX8wCncgOmb4Y7WwGYWGlHWrPCkKKs3ktmykA_ydNwanSjU0G3lMCA",
+      "schema_valid": true,
+      "expected": "authority-unestablished"
+    },
+    {
+      "name": "invalid holder thumbprint trailing bits",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxQiIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.2-iJ11ELdV9rsXieUspvqnArgPudCSK1dPpV5nU_sC2CaY1QlvncjQoIHXfni7-Q445QnQUVqVohIiFMNMI4Dg",
+      "schema_valid": false,
+      "expected": "artifact-invalid"
+    },
+    {
+      "name": "noncanonical header",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJ0eXAiOiJrZWVsLWRpcmVjdC1ncmFudC12MStqd3MiLCJhbGciOiJFZERTQSJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.SDwyotjl3Xt7jp0ETtXd6aXFAMnPP-AAt0NiC-d_wqpbEbOXORmdLTydTvSq5lq5T-oLYtwTifWrVRsxEq4NDQ",
+      "schema_valid": true,
+      "expected": "artifact-invalid"
+    },
+    {
+      "name": "noncanonical claims",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.ewogICJpc3MiOiAiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLAogICJpZCI6ICI2ZTdlZWFkMS1mMmNlLTRhZjUtOWZmZS00ZDljMDAzN2VlNGUiLAogICJzdWJqZWN0IjogInBhcnR5OmFkYSIsCiAgImhvbGRlciI6ICJhY3Rvcjpwcm94eSIsCiAgImhvbGRlcl9qa3QiOiAiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsCiAgImF1ZGllbmNlIjogImFjdG9yOmxpYnJhcnkiLAogICJwZXJtaXNzaW9uIjogewogICAgImNvbnRyYWN0IjogImV4YW1wbGUubGlicmFyeS8xIiwKICAgICJwYXJhbWV0ZXJzIjogewogICAgICAiYWN0aW9ucyI6IFsKICAgICAgICAicmVhZCIKICAgICAgXSwKICAgICAgInJlc291cmNlcyI6IFsKICAgICAgICAiZG9jLXgiCiAgICAgIF0KICAgIH0KICB9LAogICJub3RfYmVmb3JlIjogIjIwMzAtMDEtMDFUMTI6MDA6MDAuMDAwMDAxWiIsCiAgImV4cGlyZXNfYXQiOiAiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIgp9.-Td3lfqbqdChUdn0q-ng-iUd55E-urdk1-uOt0ZGNuMpE0y1LzJsBmVvmGIef8a7KfgzK9WSIQ_nMnD589A6AA",
+      "schema_valid": true,
+      "expected": "artifact-invalid"
+    },
+    {
+      "name": "duplicate claims member",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJzdWJqZWN0IjoicGFydHk6Ym9iIiwiYXVkaWVuY2UiOiJhY3RvcjpsaWJyYXJ5IiwiZXhwaXJlc19hdCI6IjIwMzAtMDEtMDFUMTI6MDU6MDAuMDAwMDAxWiIsImhvbGRlciI6ImFjdG9yOnByb3h5IiwiaG9sZGVyX2prdCI6Ino0a28xRUFEbXNKbGRqTnZ0TENacGFSRDNrM3hFRjh4a0VEc0RyWkU0MTAiLCJpZCI6IjZlN2VlYWQxLWYyY2UtNGFmNS05ZmZlLTRkOWMwMDM3ZWU0ZSIsImlzcyI6ImFjdG9yOmxpYnJhcnktYXV0aG9yaXR5Iiwibm90X2JlZm9yZSI6IjIwMzAtMDEtMDFUMTI6MDA6MDAuMDAwMDAxWiIsInBlcm1pc3Npb24iOnsiY29udHJhY3QiOiJleGFtcGxlLmxpYnJhcnkvMSIsInBhcmFtZXRlcnMiOnsiYWN0aW9ucyI6WyJyZWFkIl0sInJlc291cmNlcyI6WyJkb2MteCJdfX0sInN1YmplY3QiOiJwYXJ0eTphZGEifQ.u_ipMkv7vjfGhrv7k4xsxsft0CYiKY5BhQfuO9OM9NpU1bv_qgJ_MXZDmziU2-oR9B9D-2oymQklsJgelCh6Ag",
+      "expected": "artifact-invalid"
+    },
+    {
+      "name": "invalid calendar date passes shape",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMi0zMFQxMjowMDowMFoiLCJwZXJtaXNzaW9uIjp7ImNvbnRyYWN0IjoiZXhhbXBsZS5saWJyYXJ5LzEiLCJwYXJhbWV0ZXJzIjp7ImFjdGlvbnMiOlsicmVhZCJdLCJyZXNvdXJjZXMiOlsiZG9jLXgiXX19LCJzdWJqZWN0IjoicGFydHk6YWRhIn0.zUryoTk9-l74rJ9wewBy4yjz7CBhwt3DvIdh-R5BnZdSm10uIwR0s9FIYzZ7HPkYxDHFHVSaK8PzLVNu20DvCA",
+      "schema_valid": true,
+      "expected": "artifact-invalid"
+    },
+    {
+      "name": "before inclusive start by one microsecond",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "authority-unestablished"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.2_Ox5MQ1RP2proxGnk0kTgYs7NthdtJcLncf6A0jAnmo2Sjn_t8j8c49lyCoKf3xTwePdLjsYQMS4y0BzXQECg",
+      "overrides": {
+        "now": "2030-01-01T12:00:00Z"
+      },
+      "schema_valid": true,
+      "expected": "authority-unestablished"
+    },
+    {
+      "name": "at exclusive end",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "authority-unestablished"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.2_Ox5MQ1RP2proxGnk0kTgYs7NthdtJcLncf6A0jAnmo2Sjn_t8j8c49lyCoKf3xTwePdLjsYQMS4y0BzXQECg",
+      "overrides": {
+        "now": "2030-01-01T12:05:00.000001Z"
+      },
+      "schema_valid": true,
+      "expected": "authority-unestablished"
+    },
+    {
+      "name": "empty interval",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.q3vvh3K19N0vrl6cwT5iOkNmWISZs6P3nevRPEkR7hc3t7QXFm3-TsNoXXR7bLeXX6Os4RNgBR1ONQQ9vAG0BA",
+      "schema_valid": true,
+      "expected": "artifact-invalid"
+    },
+    {
+      "name": "lifetime exceeds configured limit by one microsecond",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "authority-unestablished"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDJaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.jiDRBXsW_WCe4CuaxBFWZideFNvgBJRhxBGNbyO_d76qC10xnA9VTLEmh3J1pnHHtXTLHBVB51eSqaLdz8y1CA",
+      "schema_valid": true,
+      "expected": "authority-unestablished"
+    },
+    {
+      "name": "healthy signature under unauthorized key",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "authority-unestablished"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.ybCb-8v8KyAlOaNTLeKwG-g0p17M3XJ0V9GUr0qYWR_q-G6iSC_MQd33FHcO0MYcgcJDJaJ7A_C3rVXCXmEzCQ",
+      "overrides": {
+        "candidate_keys": [
+          "untrusted_authority"
+        ],
+        "issuance_authorized_keys": [
+          "ed_authority"
+        ]
+      },
+      "schema_valid": true,
+      "expected": "authority-unestablished"
+    },
+    {
+      "name": "signature does not verify",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "authority-unestablished"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.ybCb-8v8KyAlOaNTLeKwG-g0p17M3XJ0V9GUr0qYWR_q-G6iSC_MQd33FHcO0MYcgcJDJaJ7A_C3rVXCXmEzCQ",
+      "schema_valid": true,
+      "expected": "authority-unestablished"
+    },
+    {
+      "name": "missing authority on verifying key cannot borrow another rule",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "authority-unestablished"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.2_Ox5MQ1RP2proxGnk0kTgYs7NthdtJcLncf6A0jAnmo2Sjn_t8j8c49lyCoKf3xTwePdLjsYQMS4y0BzXQECg",
+      "overrides": {
+        "issuance_authorized_keys": [
+          "es_authority"
+        ]
+      },
+      "schema_valid": true,
+      "expected": "authority-unestablished"
+    },
+    {
+      "name": "current local denial",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "authority-unestablished"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.2_Ox5MQ1RP2proxGnk0kTgYs7NthdtJcLncf6A0jAnmo2Sjn_t8j8c49lyCoKf3xTwePdLjsYQMS4y0BzXQECg",
+      "overrides": {
+        "denied_grant_ids": [
+          "6e7eead1-f2ce-4af5-9ffe-4d9c0037ee4e"
+        ]
+      },
+      "schema_valid": true,
+      "expected": "authority-unestablished"
+    },
+    {
+      "name": "configured issuer authority withdrawn",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "authority-unestablished"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.2_Ox5MQ1RP2proxGnk0kTgYs7NthdtJcLncf6A0jAnmo2Sjn_t8j8c49lyCoKf3xTwePdLjsYQMS4y0BzXQECg",
+      "overrides": {
+        "candidate_keys": [
+          "es_authority"
+        ]
+      },
+      "schema_valid": true,
+      "expected": "authority-unestablished"
+    },
+    {
+      "name": "wrong expected holder key",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "authority-unestablished"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.2_Ox5MQ1RP2proxGnk0kTgYs7NthdtJcLncf6A0jAnmo2Sjn_t8j8c49lyCoKf3xTwePdLjsYQMS4y0BzXQECg",
+      "overrides": {
+        "holder_key": "untrusted_authority"
+      },
+      "schema_valid": true,
+      "expected": "authority-unestablished"
+    },
+    {
+      "name": "wrong expected audience",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "authority-unestablished"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.2_Ox5MQ1RP2proxGnk0kTgYs7NthdtJcLncf6A0jAnmo2Sjn_t8j8c49lyCoKf3xTwePdLjsYQMS4y0BzXQECg",
+      "overrides": {
+        "audience": "actor:other-library"
+      },
+      "schema_valid": true,
+      "expected": "authority-unestablished"
+    },
+    {
+      "name": "extra compact part",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.2_Ox5MQ1RP2proxGnk0kTgYs7NthdtJcLncf6A0jAnmo2Sjn_t8j8c49lyCoKf3xTwePdLjsYQMS4y0BzXQECg.x",
+      "expected": "artifact-invalid"
+    },
+    {
+      "name": "padded compact encoding",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9=.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VzIjpbImRvYy14Il19fSwic3ViamVjdCI6InBhcnR5OmFkYSJ9.2_Ox5MQ1RP2proxGnk0kTgYs7NthdtJcLncf6A0jAnmo2Sjn_t8j8c49lyCoKf3xTwePdLjsYQMS4y0BzXQECg",
+      "expected": "artifact-invalid"
+    },
+    {
+      "name": "nested parameters exceed depth bound",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJuZXN0ZWQiOltbW1tbW1tbW1tbW1tbWyJ4Il1dXV1dXV1dXV1dXV1dXX19LCJzdWJqZWN0IjoicGFydHk6YWRhIn0.cYDvciC8d8Uss-f_olkfoZnY_gnJh1rhfS4jNWrSsc--0zAj4Du1lHQMmHLM_MpwDbv34IORzIVFyCDJxZsICw",
+      "schema_valid": true,
+      "expected": "artifact-invalid"
+    },
+    {
+      "name": "compact bytes exceed artifact bound",
+      "steps": [
+        {
+          "event": "Verify and evaluate the grant for setup under this case policy.",
+          "expect": [
+            "artifact-invalid"
+          ]
+        }
+      ],
+      "compact": "eyJhbGciOiJFZERTQSIsInR5cCI6ImtlZWwtZGlyZWN0LWdyYW50LXYxK2p3cyJ9.eyJhdWRpZW5jZSI6ImFjdG9yOmxpYnJhcnkiLCJleHBpcmVzX2F0IjoiMjAzMC0wMS0wMVQxMjowNTowMC4wMDAwMDFaIiwiaG9sZGVyIjoiYWN0b3I6cHJveHkiLCJob2xkZXJfamt0IjoiejRrbzFFQURtc0psZGpOdnRMQ1pwYVJEM2szeEVGOHhrRURzRHJaRTQxMCIsImlkIjoiNmU3ZWVhZDEtZjJjZS00YWY1LTlmZmUtNGQ5YzAwMzdlZTRlIiwiaXNzIjoiYWN0b3I6bGlicmFyeS1hdXRob3JpdHkiLCJub3RfYmVmb3JlIjoiMjAzMC0wMS0wMVQxMjowMDowMC4wMDAwMDFaIiwicGVybWlzc2lvbiI6eyJjb250cmFjdCI6ImV4YW1wbGUubGlicmFyeS8xIiwicGFyYW1ldGVycyI6eyJ0ZXh0IjoieHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4In19LCJzdWJqZWN0IjoicGFydHk6YWRhIn0.OFFDx4aTSX-Qzr0xAnarEmEneDKTzwGrcfGcC_wrZDW1yXTJabuk4sz8ZB-P6IWVD2h1fmwFfisS0OBT4aqxAg",
+      "schema_valid": true,
+      "expected": "artifact-invalid"
+    }
+  ]
+}

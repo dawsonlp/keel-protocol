@@ -35,3 +35,12 @@ validation remain outstanding; no SDK or running network is delivered here.
 subject, with their rationale, limits, alternative dispositions and links to
 current definitions. Deliberation logs and process metadata are not retained.
 The implementation guide preserves outstanding engineering responsibilities.
+
+## Delegated authority
+
+The [optional extension](../extensions/delegated-authority/README.md) specifies
+provisioned direct grants. The [proposal](proposals/delegated-authority-extension.md)
+describes the broader vision for multi-hop delegation and recursive permissioning.
+
+Track design decisions, specification work and implementation evidence in the
+[delegated authority implementation checklist](proposals/delegated-authority-implementation-checklist.md).

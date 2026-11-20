@@ -30,6 +30,7 @@ common role-conditioned contract, not separate core participation profiles.
 - A concrete WebSocket binding and provisioned memory-only context profile.
 - Payload schemas and structural, cryptographic and behavioral conformance artifacts.
 - An optional provisioned agreement profile for stable application meaning.
+- An optional provisioned direct grant profile for verified requester authority.
 
 The current deliverable is a specification. It selects no programming language,
 SDK, process model, database or actor hosting framework.

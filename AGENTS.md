@@ -196,8 +196,9 @@ to this repository.
    or a running listener is insufficient. Use the current vectors and the
    [implementation validation layers](docs/implementation.md#validation-and-conformance-evidence).
 
-The protocol supplies no portable scoped-grant format or recovery extension.
-Application permission and service recovery contracts must be explicit when used.
+Select [delegated authority](extensions/delegated-authority/README.md) explicitly
+when a requester exercises a direct grant in a provisioned conversation. Define
+application permission and service recovery contracts at their owning boundaries.
 
 ## Design and implement a network
 

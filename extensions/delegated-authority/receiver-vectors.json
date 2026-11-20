@@ -1,0 +1,480 @@
+{
+  "description": "Receiver traces for keel.provisioned-direct-grant.v1. Each case is independent. U is a UI actor, P is a proxy, H is a represented principal, and W is a receiving actor. Assume a structurally valid message, current core signer authentication, applicable scope, configured time and audience policy, and independently trusted provisioning except where a step varies one of these. Requirement IDs refer to the extension proposal. Recursive proof validation (DA10 and DA11) belongs to a separately selected future profile.",
+  "cases": [
+    {
+      "name": "direct core and attribution-only participation",
+      "requirements": [
+        "DA01",
+        "DA02",
+        "DA14"
+      ],
+      "steps": [
+        {
+          "event": "In ordinary core scope X, P requests read under its own authorized policy. Repeat with on_behalf_of H.",
+          "expect": [
+            "Both cases use ordinary authorization of P",
+            "H gains no authority and no grant verifier is consulted"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "both peers provision a direct grant and admit a represented opening",
+      "requirements": [
+        "DA01",
+        "DA03",
+        "DA05"
+      ],
+      "steps": [
+        {
+          "event": "U, P and W sign as themselves. Provision separate U-to-P and P-to-W scopes with the respective grants. Try sending before bilateral readiness.",
+          "expect": [
+            "No work before activation"
+          ]
+        },
+        {
+          "event": "Activate both guards on each scope. P signs a read of doc-x to W within its matching active association.",
+          "expect": [
+            "W verifies the certified P key and matches the granted permission and resource",
+            "W accepts the opening and reports taken:new-turn",
+            "W retains P as signer and H as subject"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "grant and scope selection cannot silently downgrade",
+      "requirements": [
+        "DA02",
+        "DA03",
+        "DA12",
+        "DA14"
+      ],
+      "steps": [
+        {
+          "event": "P selects the extension and an exact grant but W advertises only ordinary core or installs different bytes.",
+          "expect": [
+            "No bilateral activation and no core refusal",
+            "No work starts and no prior disposition is revealed"
+          ]
+        },
+        {
+          "event": "Present an unsupported derived proof, an oversized proof, or a proof containing a URL for key discovery.",
+          "expect": [
+            "Setup rejects the unsupported or oversized proof within configured bounds",
+            "No untrusted lookup and no ordinary-core fallback"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "naming trust, resource policy and issuance authority are independent",
+      "requirements": [
+        "DA04",
+        "DA05"
+      ],
+      "steps": [
+        {
+          "event": "A configured naming certifier signs a grant for a represented action it may not confer.",
+          "expect": [
+            "Setup fails"
+          ]
+        },
+        {
+          "event": "An authorized resource issuer signs a grant and both peers activate. The receiver then locally denies the operation.",
+          "expect": [
+            "Fresh protected request receives not-authorized",
+            "No effect is performed"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "new protected action uses exact original association",
+      "requirements": [
+        "DA02",
+        "DA03",
+        "DA05",
+        "DA06"
+      ],
+      "steps": [
+        {
+          "event": "Use a structurally valid first-seen request with a different certified key for the same holder principal. Repeat separately with on_behalf_of naming another subject or a request for doc-y under a doc-x grant.",
+          "expect": [
+            "On an otherwise authorized route and valid scope the respective request receives not-authorized",
+            "No independent holder privilege supplies fallback"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ambiguity cannot authorize a contribution or answer",
+      "requirements": [
+        "DA05",
+        "DA06"
+      ],
+      "steps": [
+        {
+          "event": "Under an otherwise current grant, send a say whose reference matches an opening and a question.",
+          "expect": [
+            "Core malformed reference outcome",
+            "Apply to neither target"
+          ]
+        },
+        {
+          "event": "Send a fresh say to a valid open target with an amendment that exceeds the granted resource scope.",
+          "expect": [
+            "Refuse not-authorized",
+            "Retain the original work constraints"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "known target stop does not authorize another target",
+      "requirements": [
+        "DA06",
+        "DA07"
+      ],
+      "steps": [
+        {
+          "event": "With an admitted opening and only a read action permission, send a first-seen stop for that opening.",
+          "expect": [
+            "Refuse not-authorized",
+            "No stopped result or suppression marker"
+          ]
+        },
+        {
+          "event": "In an independent matched setup with stop permission for the known target, send a stop for that target.",
+          "expect": [
+            "Apply core stop to that target only"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stop before opening with established target authority",
+      "requirements": [
+        "DA06",
+        "DA07"
+      ],
+      "steps": [
+        {
+          "event": "Under an active fixed-subject association, send a stop for unseen S, with permission covering all eligible openings for S.",
+          "expect": [
+            "Accept stop with core ack and scoped prospective suppression"
+          ]
+        },
+        {
+          "event": "Deliver a fresh, otherwise authorized opening S under the same association.",
+          "expect": [
+            "Report taken:not-acted-on",
+            "Produce no turn, result or protected effect"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stop before opening without established target authority",
+      "requirements": [
+        "DA06",
+        "DA07"
+      ],
+      "steps": [
+        {
+          "event": "Send a stop for unseen S. The grant covers some possible targets, and no trusted facts establish coverage for S.",
+          "expect": [
+            "Refuse not-authorized",
+            "Create no suppression marker"
+          ]
+        },
+        {
+          "event": "Deliver an otherwise authorized opening S.",
+          "expect": [
+            "Evaluate ordinary opening admission",
+            "Do not treat earlier refusal as suppression"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "approval grants do not inherit from turn scope",
+      "requirements": [
+        "DA01",
+        "DA05",
+        "DA06",
+        "DA09"
+      ],
+      "steps": [
+        {
+          "event": "P offers its read grant as authority to initiate an approval or decide a pending actor-originated approval.",
+          "expect": [
+            "Refuse not-authorized if that specific action or decision is outside the grant",
+            "Do not create or decide an approval"
+          ]
+        },
+        {
+          "event": "In a separate scope, P has permission for the exact actor-originated approval and submits a timely correctly bound decision.",
+          "expect": [
+            "Core originator accepts that decision and retains ownership of closure"
+          ]
+        },
+        {
+          "event": "P attempts to close the actor-owned approval.",
+          "expect": [
+            "Core not-authorized ownership outcome",
+            "No new closure"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "approval deadlines and exact decision binding remain in force",
+      "requirements": [
+        "DA01",
+        "DA06",
+        "DA09"
+      ],
+      "steps": [
+        {
+          "event": "Under otherwise sufficient delegated decision authority, submit a decision without its required digest. Separately submit a correctly bound decision after the owner expires the approval.",
+          "expect": [
+            "Core binding or lifecycle failure applies",
+            "Neither decision is accepted"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "exact copy after grant expiry reports old admission only",
+      "requirements": [
+        "DA07",
+        "DA08",
+        "DA15"
+      ],
+      "steps": [
+        {
+          "event": "Admit an authorized opening and retain its disposition, then advance the receiver clock to grant expiry.",
+          "expect": [
+            "Old admission remains recorded"
+          ]
+        },
+        {
+          "event": "Deliver the exact signed opening again on a route currently authorized to inspect that disposition.",
+          "expect": [
+            "Return eligible minimal core ack",
+            "No repeated effect or cached result disclosure"
+          ]
+        },
+        {
+          "event": "Deliver a distinct fresh opening with all ordinary core checks passing under the same expired association.",
+          "expect": [
+            "Refuse not-authorized",
+            "Do not admit or execute new work"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "audience loss precedes retained disposition selection",
+      "requirements": [
+        "DA07",
+        "DA15"
+      ],
+      "steps": [
+        {
+          "event": "After accepting a protected request, receive both an exact copy and a fresh opening on an unauthorized route in separate runs.",
+          "expect": [
+            "Use the same generic WebSocket 1008 outcome for both",
+            "No core disposition, new reservation or protected disclosure"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "conflicting request identity precedes fresh grant authorization",
+      "requirements": [
+        "DA03",
+        "DA07"
+      ],
+      "steps": [
+        {
+          "event": "Admit a request. Re-sign different structurally valid bytes using the same scoped message ID, after expiry, with route and core authentication otherwise valid.",
+          "expect": [
+            "Core conflicting-ID failure remains malformed",
+            "Original disposition unchanged"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "protected effect is checked after admission",
+      "requirements": [
+        "DA07",
+        "DA08"
+      ],
+      "steps": [
+        {
+          "event": "Admit a grant-dependent write. Before committing it, advance the test clock to expiry or record an authorized local denial.",
+          "expect": [
+            "Preserve prior admission",
+            "The resource owner refuses the protected effect under the test resource contract",
+            "No rollback promise or invented terminal state"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "local denial during admission and guarded retirement",
+      "requirements": [
+        "DA07",
+        "DA08"
+      ],
+      "steps": [
+        {
+          "event": "Queue a verified opening and pause before semantic admission. In separate runs, record local grant denial or retire the original scope.",
+          "expect": [
+            "On resumption do not admit on earlier checks",
+            "Use not-authorized for the denied grant on a valid route and the binding outcome when scope is retired"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "renewal and reconnect require a fresh scope",
+      "requirements": [
+        "DA03",
+        "DA06",
+        "DA07",
+        "DA08"
+      ],
+      "steps": [
+        {
+          "event": "Replace the connection and grant, provisioning a fresh conversation. Deliver a signed opening for the old conversation on the new connection.",
+          "expect": [
+            "Use generic binding rejection",
+            "No old turn or approval moves to the new association"
+          ]
+        },
+        {
+          "event": "Try replacing grant bytes in place on an active scope.",
+          "expect": [
+            "No in-place replacement or reauthorization of queued frames"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "late actor reply and owner closure use own authority",
+      "requirements": [
+        "DA01",
+        "DA07",
+        "DA08",
+        "DA15"
+      ],
+      "steps": [
+        {
+          "event": "After requester grant expiry, the actor emits a valid result for previously admitted work while authorized to disclose it. The requester separately closes its own pending approval via ordinary core rules.",
+          "expect": [
+            "Apply core role and ownership checks",
+            "No fresh delegated grant is required solely to report the result or exercise authorized owner closure"
+          ]
+        },
+        {
+          "event": "Repeat with disclosure no longer authorized.",
+          "expect": [
+            "Hold protected outbound content and preserve delivery uncertainty"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "proxy cannot apply its outward grant to an excessive UI instruction",
+      "requirements": [
+        "DA05",
+        "DA09",
+        "DA15"
+      ],
+      "steps": [
+        {
+          "event": "U is authorized only to request history from P, while P separately has publication authority at W. U asks P to publish.",
+          "expect": [
+            "P refuses the protected instruction",
+            "No downstream publication request or effect"
+          ]
+        },
+        {
+          "event": "P sends a separately authorized worker request under its distinct grant.",
+          "expect": [
+            "W can establish P acting for H",
+            "No assertion that H personally signed or that W verified the original UI instruction"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "authority does not imply shared budgets",
+      "requirements": [
+        "DA05",
+        "DA13"
+      ],
+      "steps": [
+        {
+          "event": "Set up with a grant whose permission parameters include an unsupported shared quota or one-time use condition.",
+          "expect": [
+            "Reject setup rather than omitting the condition",
+            "No use accounting promise inferred"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "issuer grant identity conflict does not replace an active association",
+      "requirements": [
+        "DA03",
+        "DA04",
+        "DA07"
+      ],
+      "steps": [
+        {
+          "event": "Admit work using a valid grant. During new setup authenticate different compact bytes with the same issuer and grant ID in the same namespace.",
+          "expect": [
+            "Reject the conflicting setup",
+            "Do not change the original association or its dispositions"
+          ]
+        },
+        {
+          "event": "Send a fresh protected request on the original still-authorized route after the receiver knows the conflict.",
+          "expect": [
+            "Refuse not-authorized",
+            "Preserve the earlier admitted work and its authorized disposition feedback"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "same key renewal and holder rotation have separate effects",
+      "requirements": [
+        "DA03",
+        "DA06",
+        "DA08"
+      ],
+      "steps": [
+        {
+          "event": "During grant validity, renew the requester certificate for the same signing key and send a fresh authorized opening.",
+          "expect": [
+            "Evaluate normally under the original grant and scope",
+            "Grant expiry remains unchanged"
+          ]
+        },
+        {
+          "event": "Use the new certificate for a different key for another fresh protected request in the original scope, with all other guards satisfied.",
+          "expect": [
+            "Refuse not-authorized",
+            "A grant bound to the new key and fresh setup are needed for represented work"
+          ]
+        }
+      ]
+    }
+  ]
+}

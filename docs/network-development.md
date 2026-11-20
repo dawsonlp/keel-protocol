@@ -101,7 +101,10 @@ the actual publishing boundary. Application policy defines grant scope, use
 limits and expiry. Permission does not prove publication, and completing or
 stopping a work turn neither withdraws an independent approval nor revokes
 permission. Explicitly withdraw a pending approval when the application's work
-dependency requires it. No portable scoped-grant wire format is supplied here.
+dependency requires it. For verified representation, the optional
+[direct grant profile](../extensions/delegated-authority/README.md) binds a
+signed grant to a provisioned conversation. Define the grant's permission
+meaning and effect boundary in the resource's application contract.
 
 ## Stop work and report outcomes
 
